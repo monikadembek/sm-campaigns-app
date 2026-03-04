@@ -58,10 +58,21 @@
       "options": {
         "targetName": "e2e"
       }
+    },
+    {
+      "plugin": "@nx/vitest",
+      "options": {
+        "testTargetName": "vitest:test",
+        "ciTargetName": "test-ci",
+        "testMode": "watch"
+      }
     }
   ],
   "targetDefaults": {
     "test": {
+      "dependsOn": ["^build"]
+    },
+    "serve": {
       "dependsOn": ["^build"]
     },
     "@angular/build:application": {
@@ -72,6 +83,11 @@
     "@nx/vitest:test": {
       "cache": true,
       "inputs": ["default", "^production"]
+    },
+    "@nx/js:tsc": {
+      "cache": true,
+      "dependsOn": ["^build"],
+      "inputs": ["production", "^production"]
     }
   },
   "generators": {

@@ -12,6 +12,10 @@
     "skipLibCheck": true,
     "strict": true,
     "target": "es2022",
-    "customConditions": ["@sm-campaigns-app/source"]
+    "customConditions": ["@sm-campaigns-app/source"],
+    "baseUrl": ".",
+    "paths": {
+      "@sm-campaigns-app/datatypes": ["packages/shared/datatypes"]
+    }
   }
 }
