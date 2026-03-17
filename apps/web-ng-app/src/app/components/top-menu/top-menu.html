@@ -1,0 +1,13 @@
+<div class="card">
+  <p-menubar [model]="items">
+    <ng-template #start>Social Media Campaigns</ng-template>
+    <ng-template #end>
+      <span class="mr-4">{{userEmail()}}</span>
+      @if(!isLoggedIn()) {
+      <p-button label="Sign In" (onClick)="navigateToLoginPage()"></p-button>
+      } @else {
+      <p-button label="Sign Out" (onClick)="emitSignOut()"></p-button>
+      }
+    </ng-template>
+  </p-menubar>
+</div>

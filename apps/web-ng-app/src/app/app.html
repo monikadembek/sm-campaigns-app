@@ -1,1 +1,9 @@
-<router-outlet></router-outlet>
+<app-top-menu
+  [isLoggedIn]="isLoggedIn()"
+  [userEmail]="userEmail()"
+  (signOut)="signOut()"
+></app-top-menu>
+<main>
+  <router-outlet></router-outlet>
+</main>
+<p-toast />
