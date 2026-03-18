@@ -4,9 +4,17 @@
     <ng-template #end>
       <span class="mr-4">{{userEmail()}}</span>
       @if(!isLoggedIn()) {
-      <p-button label="Sign In" (onClick)="navigateToLoginPage()"></p-button>
+      <p-button
+        label="Sign In"
+        size="small"
+        (onClick)="navigateToLoginPage()"
+      ></p-button>
       } @else {
-      <p-button label="Sign Out" (onClick)="emitSignOut()"></p-button>
+      <p-button
+        label="Sign Out"
+        size="small"
+        (onClick)="emitSignOut()"
+      ></p-button>
       }
     </ng-template>
   </p-menubar>

@@ -1,4 +1,11 @@
-import { Component, computed, inject, OnInit, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { Supabase } from '../../services/supabase';
 import { FormsModule, NgForm } from '@angular/forms';
 import { InputOtpModule } from 'primeng/inputotp';
@@ -18,6 +25,7 @@ import { CardModule } from 'primeng/card';
   ],
   templateUrl: './verify.html',
   styleUrl: './verify.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Verify implements OnInit {
   private readonly supabase = inject(Supabase);

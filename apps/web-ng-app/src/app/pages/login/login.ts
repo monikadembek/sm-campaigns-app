@@ -1,4 +1,9 @@
-import { Component, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormsModule, NgForm } from '@angular/forms';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
@@ -23,6 +28,7 @@ import { CardModule } from 'primeng/card';
   ],
   templateUrl: './login.html',
   styleUrl: './login.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Login {
   private readonly messageService = inject(MessageService);
@@ -43,7 +49,7 @@ export class Login {
         this.messageService.add({
           severity: 'success',
           summary: 'Login',
-          detail: 'Check your email',
+          detail: 'Check your email for the OTP code',
           life: 3000,
         });
         this.supabase.storePendingEmail(email);

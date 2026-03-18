@@ -1,4 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+} from '@angular/core';
 import { Supabase } from '../../services/supabase';
 
 @Component({
@@ -6,6 +11,7 @@ import { Supabase } from '../../services/supabase';
   imports: [],
   templateUrl: './dashboard.html',
   styleUrl: './dashboard.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Dashboard {
   private readonly supabase = inject(Supabase);
