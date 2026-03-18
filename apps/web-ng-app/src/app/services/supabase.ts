@@ -1,0 +1,86 @@
+import { inject, Injectable, PLATFORM_ID, signal } from '@angular/core';
+import {
+  createClient,
+  Session,
+  SupabaseClient,
+  User,
+} from '@supabase/supabase-js';
+import { environment } from '../../environments/environment';
+import { isPlatformBrowser } from '@angular/common';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class Supabase {
+  private readonly platformId = inject(PLATFORM_ID);
+
+  private supabase!: SupabaseClient;
+  readonly currentUser = signal<User | null>(null);
+  readonly currentSession = signal<Session | null>(null);
+  readonly pendingEmail = signal<string | null>(null);
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.supabase = createClient(
+        environment.supabaseUrl,
+        environment.supabaseKey,
+      );
+      this.initAuth();
+    }
+  }
+
+  storePendingEmail(email: string | null) {
+    this.pendingEmail.set(email);
+  }
+
+  signInWithOtp(userEmail: string) {
+    return this.supabase.auth.signInWithOtp({
+      email: userEmail,
+      options: {
+        // set this to false if you do not want the user to be automatically signed up
+        shouldCreateUser: false,
+      },
+    });
+  }
+
+  verifyOtp(code: string, email: string) {
+    return this.supabase.auth.verifyOtp({
+      email: email,
+      token: code,
+      type: 'email',
+    });
+  }
+
+  async signOut() {
+    await this.supabase.auth.signOut();
+  }
+
+  getSession() {
+    return this.supabase.auth.getSession();
+  }
+
+  initAuth() {
+    console.log('initAuth() - listen for auth state changes');
+    this.supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'INITIAL_SESSION') {
+        // handle initial session
+        this.currentSession.set(session);
+        this.currentUser.set(session?.user ? session.user : null);
+        this.pendingEmail.set(null);
+        console.log(event, session);
+      } else if (event === 'SIGNED_IN') {
+        // handle sign in event
+        this.currentSession.set(session);
+        this.currentUser.set(session?.user ? session.user : null);
+        this.pendingEmail.set(null);
+        console.log(event, session);
+      } else if (event === 'SIGNED_OUT') {
+        console.log(event, session);
+        this.currentSession.set(null);
+        this.currentUser.set(null);
+      }
+    });
+    // call unsubscribe to remove the callback
+    // data.subscription.unsubscribe();
+  }
+}
