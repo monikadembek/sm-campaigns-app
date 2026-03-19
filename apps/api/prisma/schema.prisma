@@ -1,0 +1,200 @@
+datasource db {
+  provider = "postgresql"
+}
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+enum Platform {
+  INSTAGRAM
+  TWITTER
+  FACEBOOK
+  LINKEDIN
+  TIKTOK
+  YOUTUBE
+  PINTEREST
+}
+
+enum CampaignStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  COMPLETED
+  ARCHIVED
+}
+
+enum PostType {
+  IMAGE
+  VIDEO
+  CAROUSEL
+  REEL
+  STORY
+  TEXT
+  LINK
+  POLL
+}
+
+enum PostStatus {
+  DRAFT
+  SCHEDULED
+  PUBLISHED
+  FAILED
+}
+
+enum MediaType {
+  IMAGE
+  VIDEO
+  GIF
+  DOCUMENT
+}
+
+model CampaignGoal {
+  id        Int        @id @default(autoincrement())
+  label     String     @unique
+  slug      String     @unique
+  sortOrder Int        @default(0)
+  campaigns Campaign[]
+
+  @@map("campaign_goal")
+}
+
+model User {
+  id          String   @id @default(uuid())
+  supabaseId  String   @unique
+  email       String   @unique
+  displayName String?
+  avatarUrl   String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  campaigns Campaign[]
+  ctas      Cta[]
+  media     Media[]
+
+  @@index([supabaseId])
+  @@map("user")
+}
+
+model Campaign {
+  id        String         @id @default(uuid())
+  userId    String
+  goalId    Int
+  name      String
+  audience  String?
+  startDate DateTime?      @db.Date
+  endDate   DateTime?      @db.Date
+  timezone  String         @default("UTC")
+  status    CampaignStatus @default(DRAFT)
+  notes     String?
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  user  User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goal  CampaignGoal @relation(fields: [goalId], references: [id])
+  posts Post[]
+
+  @@index([userId])
+  @@index([userId, status])
+  @@index([startDate, endDate])
+  @@map("campaign")
+}
+
+model Cta {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  content   String
+  url       String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  posts Post[]
+
+  @@index([userId])
+  @@map("cta")
+}
+
+model Media {
+  id           String    @id @default(uuid())
+  userId       String
+  storageKey   String    @unique
+  publicUrl    String
+  filename     String
+  mimeType     String
+  mediaType    MediaType
+  sizeBytes    Int
+  width        Int?
+  height       Int?
+  durationSecs Float?
+  altText      String?
+  createdAt    DateTime  @default(now())
+
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  postMedia PostMedia[]
+
+  @@index([userId])
+  @@map("media")
+}
+
+model Post {
+  id          String     @id @default(uuid())
+  campaignId  String
+  ctaId       String?
+  platform    Platform
+  postType    PostType
+  content     String
+  hashtags    String[]
+  publishDate DateTime?  @db.Date
+  scheduledAt DateTime?
+  publishedAt DateTime?
+  status      PostStatus @default(DRAFT)
+  errorLog    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  campaign  Campaign        @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  cta       Cta?            @relation(fields: [ctaId], references: [id], onDelete: SetNull)
+  postMedia PostMedia[]
+  analytics PostAnalytics[]
+
+  @@index([campaignId])
+  @@index([campaignId, platform])
+  @@index([campaignId, status])
+  @@index([scheduledAt])
+  @@map("post")
+}
+
+model PostMedia {
+  postId    String
+  mediaId   String
+  sortOrder Int    @default(0)
+
+  post  Post  @relation(fields: [postId], references: [id], onDelete: Cascade)
+  media Media @relation(fields: [mediaId], references: [id], onDelete: Cascade)
+
+  @@id([postId, mediaId])
+  @@index([mediaId])
+  @@map("post_media")
+}
+
+model PostAnalytics {
+  id           String   @id @default(uuid())
+  postId       String
+  recordedDate DateTime @db.Date
+  impressions  Int      @default(0)
+  reach        Int      @default(0)
+  likes        Int      @default(0)
+  comments     Int      @default(0)
+  shares       Int      @default(0)
+  clicks       Int      @default(0)
+  saves        Int      @default(0)
+  createdAt    DateTime @default(now())
+
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, recordedDate])
+  @@index([postId])
+  @@map("post_analytics")
+}

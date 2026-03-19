@@ -6,9 +6,10 @@ export class AppService {
   getData(): User {
     return {
       id: '1',
-      name: 'John Doe',
-      email: 'john.doe@gmail.com',
-      password: 'password',
+      supabaseId: '94367e9f-9e4f-4b2f-91f6-dfe8083293c2',
+      email: 'monika.dembek@gmail.com',
+      createdAt: '2026-03-12T16:06:31.013917Z',
+      updatedAt: '2026-03-12T16:06:31.013917Z',
     };
   }
 }
