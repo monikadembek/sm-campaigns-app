@@ -14,10 +14,9 @@ export class App {
   private readonly supabaseService = inject(Supabase);
   private readonly router = inject(Router);
 
-  isLoggedIn = computed(() => {
-    return this.supabaseService.currentSession() ? true : false;
-  });
-
+  isLoggedIn = computed(() =>
+    this.supabaseService.currentSession() ? true : false,
+  );
   userEmail = computed(() => this.supabaseService.currentUser()?.email || '');
 
   async signOut() {
