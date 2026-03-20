@@ -31,9 +31,9 @@ export class Verify implements OnInit {
   private readonly supabase = inject(Supabase);
   private readonly router = inject(Router);
 
-  errorMessage = signal('');
+  readonly errorMessage = signal('');
   code = '';
-  isEmailPending = computed(() => !!this.supabase.pendingEmail());
+  readonly isEmailPending = computed(() => !!this.supabase.pendingEmail());
 
   ngOnInit(): void {
     if (!this.isEmailPending()) {
@@ -55,7 +55,7 @@ export class Verify implements OnInit {
       );
       if (session) {
         console.log('verifyOtp data: ', session);
-        this.supabase.storePendingEmail(null);
+        this.supabase.setPendingEmail(null);
         form.resetForm();
         this.router.navigate(['']);
       }

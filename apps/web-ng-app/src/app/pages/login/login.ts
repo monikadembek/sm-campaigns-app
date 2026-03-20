@@ -33,10 +33,10 @@ import { CardModule } from 'primeng/card';
 export class Login {
   private readonly messageService = inject(MessageService);
   private readonly supabase = inject(Supabase);
-  private router = inject(Router);
+  private readonly router = inject(Router);
 
   email = '';
-  errorMessage = signal('');
+  readonly errorMessage = signal('');
 
   async onSubmit(loginForm: NgForm) {
     this.errorMessage.set('');
@@ -52,7 +52,7 @@ export class Login {
           detail: 'Check your email for the OTP code',
           life: 3000,
         });
-        this.supabase.storePendingEmail(email);
+        this.supabase.setPendingEmail(email);
         this.router.navigate(['/verify']);
       }
       if (error) {

@@ -15,9 +15,21 @@ export class Supabase {
   private readonly platformId = inject(PLATFORM_ID);
 
   private supabase!: SupabaseClient;
-  readonly currentUser = signal<User | null>(null);
-  readonly currentSession = signal<Session | null>(null);
-  readonly pendingEmail = signal<string | null>(null);
+  #currentUser = signal<User | null>(null);
+  #currentSession = signal<Session | null>(null);
+  #pendingEmail = signal<string | null>(null);
+
+  get currentUser() {
+    return this.#currentUser.asReadonly();
+  }
+
+  get currentSession() {
+    return this.#currentSession.asReadonly();
+  }
+
+  get pendingEmail() {
+    return this.#pendingEmail.asReadonly();
+  }
 
   constructor() {
     if (isPlatformBrowser(this.platformId)) {
@@ -29,8 +41,8 @@ export class Supabase {
     }
   }
 
-  storePendingEmail(email: string | null) {
-    this.pendingEmail.set(email);
+  setPendingEmail(email: string | null) {
+    this.#pendingEmail.set(email);
   }
 
   signInWithOtp(userEmail: string) {
@@ -64,20 +76,20 @@ export class Supabase {
     this.supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'INITIAL_SESSION') {
         // handle initial session
-        this.currentSession.set(session);
-        this.currentUser.set(session?.user ? session.user : null);
-        this.pendingEmail.set(null);
+        this.#currentSession.set(session);
+        this.#currentUser.set(session?.user ? session.user : null);
+        this.#pendingEmail.set(null);
         console.log(event, session);
       } else if (event === 'SIGNED_IN') {
         // handle sign in event
-        this.currentSession.set(session);
-        this.currentUser.set(session?.user ? session.user : null);
-        this.pendingEmail.set(null);
+        this.#currentSession.set(session);
+        this.#currentUser.set(session?.user ? session.user : null);
+        this.#pendingEmail.set(null);
         console.log(event, session);
       } else if (event === 'SIGNED_OUT') {
         console.log(event, session);
-        this.currentSession.set(null);
-        this.currentUser.set(null);
+        this.#currentSession.set(null);
+        this.#currentUser.set(null);
       }
     });
     // call unsubscribe to remove the callback
