@@ -1,6 +1,9 @@
 export type User = {
   id: string;
-  name: string;
+  supabaseId: string;
   email: string;
-  password: string;
+  displayName?: string;
+  avatarUrl?: string;
+  createdAt: string;
+  updatedAt: string;
 };

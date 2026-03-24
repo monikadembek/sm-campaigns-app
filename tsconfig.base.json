@@ -1,7 +1,6 @@
 {
   "compilerOptions": {
     "importHelpers": true,
-    "isolatedModules": true,
     "lib": ["DOM", "es2022"],
     "module": "nodenext",
     "moduleResolution": "nodenext",
@@ -15,7 +14,7 @@
     "customConditions": ["@sm-campaigns-app/source"],
     "baseUrl": ".",
     "paths": {
-      "@sm-campaigns-app/datatypes": ["packages/shared/datatypes"]
+      "@sm-campaigns-app/datatypes": ["packages/shared/datatypes/src/index.ts"]
     }
   }
 }
