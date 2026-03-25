@@ -1,18 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { User } from '@sm-campaigns-app/datatypes';
-import { ConfigService } from '@nestjs/config';
+import { AuthGuard } from './auth/auth.guard';
+import { CurrentUser } from './shared/current-user.decorator';
 
 @Controller()
 export class AppController {
-  constructor(
-    private readonly appService: AppService,
-    private configService: ConfigService,
-  ) {}
-
+  @UseGuards(AuthGuard)
   @Get()
-  getData(): User {
-    console.log('node_env: ', this.configService.get<string>('NODE_ENV'));
-    return this.appService.getData();
+  getData(@CurrentUser() user: User): User {
+    return user;
   }
 }

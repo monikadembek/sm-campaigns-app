@@ -3,13 +3,15 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { PrismaService } from './prisma.service';
 import { APP_GUARD } from '@nestjs/core';
 import { configuration } from '../../config/configuration';
 import { validationSchema } from '../../config/validation';
+import { AuthModule } from './auth/auth.module';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
+    AuthModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: `${process.cwd()}/apps/api/config/env/${process.env.NODE_ENV}.env`,
@@ -30,11 +32,11 @@ import { validationSchema } from '../../config/validation';
         limit: 60,
       },
     ]),
+    DatabaseModule,
   ],
   controllers: [AppController],
   providers: [
     AppService,
-    PrismaService,
     {
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
