@@ -4,12 +4,13 @@ import { PrismaService } from '../database/prisma.service';
 
 describe('CampaignService', () => {
   let service: CampaignService;
-  let prisma: { campaign: { findMany: jest.Mock } };
+  let prisma: { campaign: { findMany: jest.Mock; create: jest.Mock } };
 
   beforeEach(async () => {
     prisma = {
       campaign: {
         findMany: jest.fn(),
+        create: jest.fn(),
       },
     };
 
@@ -41,6 +42,26 @@ describe('CampaignService', () => {
       where: { userId: 'user-123' },
       select: { id: true, name: true, status: true },
       orderBy: { updatedAt: 'desc' },
+    });
+  });
+
+  it('should create a campaign and return summary', async () => {
+    const mockCreated = { id: 'new-id', name: 'New Campaign', status: 'DRAFT' };
+    prisma.campaign.create.mockResolvedValue(mockCreated);
+
+    const result = await service.createCampaign('user-123', {
+      name: 'New Campaign',
+      goalId: 1,
+    });
+
+    expect(result).toEqual(mockCreated);
+    expect(prisma.campaign.create).toHaveBeenCalledWith({
+      data: {
+        name: 'New Campaign',
+        goalId: 1,
+        userId: 'user-123',
+      },
+      select: { id: true, name: true, status: true },
     });
   });
 });

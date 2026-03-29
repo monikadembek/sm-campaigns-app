@@ -1,6 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
-import { CampaignSummary } from '@sm-campaigns-app/datatypes';
+import {
+  CampaignSummary,
+  CreateCampaignRequest,
+} from '@sm-campaigns-app/datatypes';
 
 @Injectable()
 export class CampaignService {
@@ -13,5 +16,20 @@ export class CampaignService {
       orderBy: { updatedAt: 'desc' },
     });
     return campaigns;
+  }
+
+  async createCampaign(
+    userId: string,
+    data: CreateCampaignRequest,
+  ): Promise<CampaignSummary> {
+    const campaign = await this.prisma.campaign.create({
+      data: {
+        name: data.name,
+        goalId: data.goalId,
+        userId,
+      },
+      select: { id: true, name: true, status: true },
+    });
+    return campaign;
   }
 }
