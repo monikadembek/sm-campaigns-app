@@ -9,6 +9,7 @@ import { validationSchema } from '../../config/validation';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { AiContentModule } from './ai-content/ai-content.module';
+import { CampaignModule } from './campaign/campaign.module';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { AiContentModule } from './ai-content/ai-content.module';
     ]),
     DatabaseModule,
     AiContentModule,
+    CampaignModule,
   ],
   controllers: [AppController],
   providers: [
