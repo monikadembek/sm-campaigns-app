@@ -8,6 +8,7 @@ import { configuration } from '../../config/configuration';
 import { validationSchema } from '../../config/validation';
 import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
+import { AiContentModule } from './ai-content/ai-content.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { DatabaseModule } from './database/database.module';
       },
     ]),
     DatabaseModule,
+    AiContentModule,
   ],
   controllers: [AppController],
   providers: [
