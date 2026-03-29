@@ -102,3 +102,35 @@ export class GenerateContentRequestDto {
   @IsIn(['PROFESSIONAL', 'CASUAL', 'HUMOROUS', 'INSPIRATIONAL'])
   tone!: ToneStyle;
 }
+
+class PostDraft {
+  @IsIn(VALID_PLATFORMS)
+  platform!: PlatformType;
+
+  @IsIn(POST_TYPE_VALUE)
+  postType!: PostTypeValue;
+
+  @IsString()
+  @IsNotEmpty()
+  content!: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  hashtags!: string[];
+}
+
+export class SaveDraftPostsRequestDto {
+  @IsUUID()
+  campaignId!: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @ValidateNested({ each: true })
+  @Type(() => PostDraft)
+  posts!: {
+    platform: PlatformType;
+    postType: PostTypeValue;
+    content: string;
+    hashtags: string[];
+  }[];
+}

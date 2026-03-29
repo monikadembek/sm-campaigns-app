@@ -12,13 +12,14 @@ import { AiContentService } from './services/ai-content.service';
 import {
   GenerateContentRequestDto,
   GenerateIdeasRequestDto,
+  SaveDraftPostsRequestDto,
 } from './dto/ai-content.dto';
 import {
   GenerateIdeasResponse,
   GenerateContentResponse,
 } from '@sm-campaigns-app/datatypes';
 
-type AiRequest<T> = {
+type AiResponse<T> = {
   success: boolean;
   data: T;
 };
@@ -33,7 +34,7 @@ export class AiContentController {
   @Post('generate-ideas')
   async generateIdeas(
     @Body() generateIdeasData: GenerateIdeasRequestDto,
-  ): Promise<AiRequest<GenerateIdeasResponse>> {
+  ): Promise<AiResponse<GenerateIdeasResponse>> {
     try {
       const response =
         await this.aiContentService.generateIdeas(generateIdeasData);
@@ -51,7 +52,7 @@ export class AiContentController {
   @Post('generate-content')
   async generateContent(
     @Body() generateContentData: GenerateContentRequestDto,
-  ): Promise<AiRequest<GenerateContentResponse>> {
+  ): Promise<AiResponse<GenerateContentResponse>> {
     try {
       const response =
         await this.aiContentService.generatePostsContent(generateContentData);
@@ -63,6 +64,25 @@ export class AiContentController {
       this.logger.error('Error in controller: ', error);
       if (error instanceof HttpException) throw error;
       throw new InternalServerErrorException('Failed generating posts');
+    }
+  }
+
+  @Post('save-drafts')
+  async saveDrafts(
+    @Body() saveDraftPostsRequestDto: SaveDraftPostsRequestDto,
+  ): Promise<AiResponse<{ count: number }>> {
+    try {
+      const response = await this.aiContentService.saveDrafts(
+        saveDraftPostsRequestDto,
+      );
+      return {
+        success: true,
+        data: response,
+      };
+    } catch (error) {
+      this.logger.error('Error in controller: ', error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException('Failed saving post drafts');
     }
   }
 }

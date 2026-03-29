@@ -10,6 +10,7 @@ import {
   GenerateContentRequest,
   GenerateIdeasResponse,
   GenerateContentResponse,
+  SaveDraftPostsRequest,
 } from '@sm-campaigns-app/datatypes';
 import { v4 as uuidv4 } from 'uuid';
 import {
@@ -21,10 +22,14 @@ import {
   GPT_5_MINI_VERSION,
   MAX_OUTPUT_TOKENS_LIMIT_FOR_POSTS,
 } from '../../constants';
+import { PrismaService } from '../../database/prisma.service';
 
 @Injectable()
 export class AiContentService {
-  constructor(private openaiService: OpenaiService) {}
+  constructor(
+    private openaiService: OpenaiService,
+    private prismaService: PrismaService,
+  ) {}
 
   async generateIdeas(
     generateIdeasRequestData: GenerateIdeasRequest,
@@ -60,5 +65,18 @@ export class AiContentService {
       MAX_OUTPUT_TOKENS_LIMIT_FOR_POSTS,
     );
     return JSON.parse(content);
+  }
+
+  async saveDrafts(saveDraftPostsRequestsData: SaveDraftPostsRequest) {
+    return this.prismaService.post.createMany({
+      data: saveDraftPostsRequestsData.posts.map((post) => ({
+        campaignId: saveDraftPostsRequestsData.campaignId,
+        platform: post.platform,
+        postType: post.postType,
+        content: post.content,
+        hashtags: post.hashtags,
+        status: 'DRAFT',
+      })),
+    });
   }
 }

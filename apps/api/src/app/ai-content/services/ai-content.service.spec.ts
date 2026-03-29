@@ -1,9 +1,11 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { AiContentService } from './ai-content.service';
 import { OpenaiService } from './openai.service';
+import { PrismaService } from '../../database/prisma.service';
 import {
   GenerateIdeasRequest,
   GenerateContentRequest,
+  SaveDraftPostsRequest,
   PostIdea,
 } from '@sm-campaigns-app/datatypes';
 import {
@@ -19,8 +21,15 @@ jest.mock('uuid', () => ({
 describe('AiContentService', () => {
   let service: AiContentService;
   let openaiService: jest.Mocked<OpenaiService>;
+  let prismaService: { post: { createMany: jest.Mock } };
 
   beforeEach(async () => {
+    prismaService = {
+      post: {
+        createMany: jest.fn(),
+      },
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         AiContentService,
@@ -29,6 +38,10 @@ describe('AiContentService', () => {
           useValue: {
             generateAiText: jest.fn(),
           },
+        },
+        {
+          provide: PrismaService,
+          useValue: prismaService,
         },
       ],
     }).compile();
@@ -202,6 +215,83 @@ describe('AiContentService', () => {
       await expect(
         service.generatePostsContent(mockRequest),
       ).rejects.toThrow();
+    });
+  });
+
+  describe('saveDrafts', () => {
+    const mockRequest: SaveDraftPostsRequest = {
+      campaignId: '550e8400-e29b-41d4-a716-446655440099',
+      posts: [
+        {
+          platform: 'INSTAGRAM',
+          postType: 'CAROUSEL',
+          content: 'Summer is here!',
+          hashtags: ['#Summer', '#Deals'],
+        },
+        {
+          platform: 'TWITTER',
+          postType: 'TEXT',
+          content: 'Hot deals dropping now!',
+          hashtags: ['#HotDeals'],
+        },
+      ],
+    };
+
+    it('should call prisma createMany with correct data', async () => {
+      prismaService.post.createMany.mockResolvedValue({ count: 2 });
+
+      await service.saveDrafts(mockRequest);
+
+      expect(prismaService.post.createMany).toHaveBeenCalledWith({
+        data: [
+          {
+            campaignId: '550e8400-e29b-41d4-a716-446655440099',
+            platform: 'INSTAGRAM',
+            postType: 'CAROUSEL',
+            content: 'Summer is here!',
+            hashtags: ['#Summer', '#Deals'],
+            status: 'DRAFT',
+          },
+          {
+            campaignId: '550e8400-e29b-41d4-a716-446655440099',
+            platform: 'TWITTER',
+            postType: 'TEXT',
+            content: 'Hot deals dropping now!',
+            hashtags: ['#HotDeals'],
+            status: 'DRAFT',
+          },
+        ],
+      });
+    });
+
+    it('should return the createMany result', async () => {
+      const mockResult = { count: 2 };
+      prismaService.post.createMany.mockResolvedValue(mockResult);
+
+      const result = await service.saveDrafts(mockRequest);
+
+      expect(result).toEqual(mockResult);
+    });
+
+    it('should set status to DRAFT for all posts', async () => {
+      prismaService.post.createMany.mockResolvedValue({ count: 2 });
+
+      await service.saveDrafts(mockRequest);
+
+      const callArgs = prismaService.post.createMany.mock.calls[0][0];
+      callArgs.data.forEach((post: { status: string }) => {
+        expect(post.status).toBe('DRAFT');
+      });
+    });
+
+    it('should throw when database operation fails', async () => {
+      prismaService.post.createMany.mockRejectedValue(
+        new Error('Database error'),
+      );
+
+      await expect(service.saveDrafts(mockRequest)).rejects.toThrow(
+        'Database error',
+      );
     });
   });
 });

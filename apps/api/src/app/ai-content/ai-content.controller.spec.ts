@@ -9,6 +9,7 @@ import { AiContentService } from './services/ai-content.service';
 import {
   GenerateIdeasRequestDto,
   GenerateContentRequestDto,
+  SaveDraftPostsRequestDto,
 } from './dto/ai-content.dto';
 import {
   GenerateIdeasResponse,
@@ -68,6 +69,7 @@ describe('AiContentController', () => {
     const mockAiContentService = {
       generateIdeas: jest.fn(),
       generatePostsContent: jest.fn(),
+      saveDrafts: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -160,6 +162,64 @@ describe('AiContentController', () => {
       await expect(
         controller.generateContent(mockContentRequest),
       ).rejects.toThrow('Failed generating posts');
+    });
+  });
+
+  describe('saveDrafts', () => {
+    const mockSaveDraftsRequest: SaveDraftPostsRequestDto = {
+      campaignId: '550e8400-e29b-41d4-a716-446655440099',
+      posts: [
+        {
+          platform: 'INSTAGRAM',
+          postType: 'CAROUSEL',
+          content: 'Summer is here and so are our deals!',
+          hashtags: ['#SummerSale', '#Deals'],
+        },
+        {
+          platform: 'TWITTER',
+          postType: 'TEXT',
+          content: 'Hot deals dropping now!',
+          hashtags: ['#HotDeals'],
+        },
+      ],
+    };
+
+    const mockSaveDraftsResponse = { count: 2 };
+
+    it('should return success response with saved drafts data', async () => {
+      aiContentService.saveDrafts.mockResolvedValue(mockSaveDraftsResponse);
+
+      const result = await controller.saveDrafts(mockSaveDraftsRequest);
+
+      expect(result).toEqual({
+        success: true,
+        data: mockSaveDraftsResponse,
+      });
+      expect(aiContentService.saveDrafts).toHaveBeenCalledWith(
+        mockSaveDraftsRequest,
+      );
+    });
+
+    it('should re-throw HttpException from service', async () => {
+      const httpError = new BadRequestException('Invalid campaign ID');
+      aiContentService.saveDrafts.mockRejectedValue(httpError);
+
+      await expect(
+        controller.saveDrafts(mockSaveDraftsRequest),
+      ).rejects.toThrow(httpError);
+    });
+
+    it('should throw InternalServerErrorException for non-HTTP errors', async () => {
+      aiContentService.saveDrafts.mockRejectedValue(
+        new Error('Database connection failed'),
+      );
+
+      await expect(
+        controller.saveDrafts(mockSaveDraftsRequest),
+      ).rejects.toThrow(InternalServerErrorException);
+      await expect(
+        controller.saveDrafts(mockSaveDraftsRequest),
+      ).rejects.toThrow('Failed saving post drafts');
     });
   });
 });
