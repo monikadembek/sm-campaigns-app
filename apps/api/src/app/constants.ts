@@ -1,0 +1,6 @@
+export const GPT_5_MINI_VERSION = 'gpt-5.4-mini';
+export const GPT_5_REGULAR_VERSION = 'gpt-5.1';
+export const MAX_OUTPUT_TOKENS_LIMIT_DEFAULT = 5000;
+export const MAX_OUTPUT_TOKENS_LIMIT_FOR_IDEAS = 3000;
+export const MAX_OUTPUT_TOKENS_LIMIT_FOR_POSTS = 8000;
+export const MAX_PROMPT_LENGTH = 8000;

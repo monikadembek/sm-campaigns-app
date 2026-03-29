@@ -1,13 +1,13 @@
-import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { User } from '@sm-campaigns-app/datatypes';
+import { AuthGuard } from './auth/auth.guard';
+import { CurrentUser } from './shared/current-user.decorator';
 
 @Controller()
 export class AppController {
-  constructor(private readonly appService: AppService) {}
-
+  @UseGuards(AuthGuard)
   @Get()
-  getData(): User {
-    return this.appService.getData();
+  getData(@CurrentUser() user: User): User {
+    return user;
   }
 }

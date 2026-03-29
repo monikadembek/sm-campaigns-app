@@ -47,4 +47,6 @@ test-output
 
 vitest.config.*.timestamp*
 
-.env
+**/*.env
+!**/.env.example
+
