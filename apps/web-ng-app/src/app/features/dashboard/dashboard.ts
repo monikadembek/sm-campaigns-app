@@ -4,7 +4,7 @@ import {
   computed,
   inject,
 } from '@angular/core';
-import { Supabase } from '../../services/supabase';
+import { Supabase } from '../../core/auth/services/supabase';
 
 @Component({
   selector: 'app-dashboard',

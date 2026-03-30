@@ -1,23 +1,31 @@
 import { Route } from '@angular/router';
-import { authGuard } from './guards/auth-guard';
-import { guestGuard } from './guards/guest-guard';
+import { authGuard } from './core/auth/guards/auth-guard';
+import { guestGuard } from './core/auth/guards/guest-guard';
 
 export const appRoutes: Route[] = [
   {
+    path: 'ai-generator',
+    loadComponent: () =>
+      import('./features/ai-generator/ai-generator').then((m) => m.AiGenerator),
+    canActivate: [authGuard],
+  },
+  {
     path: 'login',
-    loadComponent: () => import('./pages/login/login').then((m) => m.Login),
+    loadComponent: () =>
+      import('./core/auth/pages/login/login').then((m) => m.Login),
     canActivate: [guestGuard],
   },
   {
     path: 'verify',
-    loadComponent: () => import('./pages/verify/verify').then((m) => m.Verify),
+    loadComponent: () =>
+      import('./core/auth/pages/verify/verify').then((m) => m.Verify),
     canActivate: [guestGuard],
   },
   {
     path: '',
     pathMatch: 'full',
     loadComponent: () =>
-      import('./pages/dashboard/dashboard').then((m) => m.Dashboard),
+      import('./features/dashboard/dashboard').then((m) => m.Dashboard),
     canActivate: [authGuard],
   },
   {

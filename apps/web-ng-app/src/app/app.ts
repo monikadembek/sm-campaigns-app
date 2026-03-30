@@ -1,7 +1,7 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Supabase } from './services/supabase';
-import { TopMenu } from './components/top-menu/top-menu';
+import { Supabase } from './core/auth/services/supabase';
+import { TopMenu } from './core/layout/top-menu/top-menu';
 import { ToastModule } from 'primeng/toast';
 
 @Component({
