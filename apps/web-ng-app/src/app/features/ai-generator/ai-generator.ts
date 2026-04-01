@@ -6,7 +6,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TextareaModule } from 'primeng/textarea';
-import { Step1 } from './components/step1';
+import { Step1 } from './components/step1/step1';
+import { Step2 } from './components/step2/step2';
 
 @Component({
   selector: 'app-ai-generator',
@@ -18,6 +19,7 @@ import { Step1 } from './components/step1';
     RadioButtonModule,
     TextareaModule,
     Step1,
+    Step2,
   ],
   templateUrl: './ai-generator.html',
   styleUrl: './ai-generator.css',

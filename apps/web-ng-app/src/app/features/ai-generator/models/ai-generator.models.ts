@@ -1,4 +1,4 @@
-import { ToneStyle, PlatformType } from '@sm-campaigns-app/datatypes';
+import { ToneStyle, PlatformType, PostIdea } from '@sm-campaigns-app/datatypes';
 
 export interface FirstStepForm {
   topic: string;
@@ -6,4 +6,8 @@ export interface FirstStepForm {
   selectedTone: ToneStyle;
   numberOfIdeas: number;
   additionalContext: string | null;
+}
+
+export interface SecondStepForm {
+  postIdeas: PostIdea[];
 }

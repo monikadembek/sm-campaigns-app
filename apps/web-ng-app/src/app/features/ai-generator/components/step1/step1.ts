@@ -17,11 +17,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { CheckboxModule } from 'primeng/checkbox';
 import { RadioButtonModule } from 'primeng/radiobutton';
 import { TextareaModule } from 'primeng/textarea';
-import { FirstStepForm } from '../models/ai-generator.models';
-import { AiGeneratorApi } from '../services/ai-generator-api';
+import { FirstStepForm } from '../../models/ai-generator.models';
+import { AiGeneratorApi } from '../../services/ai-generator-api';
 import { PlatformType, ToneStyle } from '@sm-campaigns-app/datatypes';
 import { MessageModule } from 'primeng/message';
-import { handleHttpErrorResponseMessage } from '../../../core/utils/errors-utils';
+import { handleHttpErrorResponseMessage } from '../../../../core/utils/errors-utils';
+import { AiGeneratorStore } from '../../services/ai-generator-store';
 
 @Component({
   selector: 'app-step1',
@@ -43,6 +44,7 @@ export class Step1 {
   readonly activateCallback = input<(step: number) => void>();
 
   private readonly aiGeneratorApiService = inject(AiGeneratorApi);
+  private readonly aiGeneratorStore = inject(AiGeneratorStore);
 
   readonly errorMessage = signal<string | null>(null);
 
@@ -127,6 +129,9 @@ export class Step1 {
           .subscribe({
             next: (res) => {
               console.log('ideas generated: ', res);
+              this.aiGeneratorStore.setGeneratedIdeas(res.data.ideas);
+              this.aiGeneratorStore.setTopic(this.firstStepModel().topic);
+              this.aiGeneratorStore.setTone(this.firstStepModel().selectedTone);
               this.activateCallback()?.(2);
             },
             error: (err) => {

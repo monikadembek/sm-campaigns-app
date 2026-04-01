@@ -1,0 +1,62 @@
+<form [formRoot]="secondStepForm">
+  <div
+    class="px-4 py-4 md:px-16 md:py-12 border-2 border-solid border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-col flex-auto flex justify-start items-start"
+  >
+    <h2 class="text-2xl font-semibold text-center mb-4">
+      Generate content for social media posts
+    </h2>
+    <h3 class="font-medium mb-10">
+      Select post ideas based on which content for posts will be generated
+    </h3>
+
+    <div class="flex flex-col justify-center gap-4">
+      <p class="font-semibold">Generated post ideas:</p>
+      @for(idea of generatedIdeas(); track $index) {
+      <div class="mb-4">
+        <div class="flex items-center">
+          <p-checkbox
+            [inputId]="idea.id"
+            [value]="idea"
+            [formField]="secondStepForm.postIdeas"
+            [invalid]="secondStepForm.postIdeas().invalid() && secondStepForm.postIdeas().touched()"
+          />
+          <label [for]="idea.id" class="ml-2">
+            <strong>Title: </strong>{{idea.title}}
+          </label>
+        </div>
+        <div class="pl-7">
+          <strong>Summary: </strong>{{idea.summary}}<br />
+          <strong>Platform: </strong>{{idea.platform.toLowerCase()}}<br />
+          <strong>Suggested Post Type: </strong>
+          {{idea.suggestedPostType.toLowerCase()}}
+        </div>
+      </div>
+      } @if(secondStepForm.postIdeas().invalid() &&
+      secondStepForm.postIdeas().touched()) { @for(err of
+      secondStepForm.postIdeas().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
+    </div>
+  </div>
+
+  @if(errorMessage()) {
+  <div class="mt-6 mb-2">
+    <p-message severity="error">{{errorMessage()}}</p-message>
+  </div>
+  }
+
+  <div class="flex pt-6 justify-between">
+    <p-button
+      label="Back"
+      severity="secondary"
+      icon="pi pi-arrow-left"
+      (onClick)="handlePreviousStep()"
+    />
+    <p-button
+      label="Next"
+      icon="pi pi-arrow-right"
+      iconPos="right"
+      (onClick)="handleNextStep()"
+    />
+  </div>
+</form>

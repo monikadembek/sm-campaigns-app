@@ -7,7 +7,12 @@ import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { FirstStepForm } from '../models/ai-generator.models';
 import { catchError, Observable, retry, throwError } from 'rxjs';
-import { GenerateIdeasResponse } from '@sm-campaigns-app/datatypes';
+import {
+  GenerateContentResponse,
+  GenerateIdeasResponse,
+  PostIdea,
+  ToneStyle,
+} from '@sm-campaigns-app/datatypes';
 
 @Injectable({
   providedIn: 'root',
@@ -46,13 +51,36 @@ export class AiGeneratorApi {
   ): Observable<{ success: boolean; data: GenerateIdeasResponse }> {
     return this.http
       .post<{ success: boolean; data: GenerateIdeasResponse }>(
-        `${environment.apiUrl}/ai-content/generate-idea`,
+        `${environment.apiUrl}/ai-content/generate-ideas`,
         {
           topic: data.topic,
           platforms: data.selectedPlatform,
           tone: data.selectedTone,
           numberOfIdeas: data.numberOfIdeas,
           additionalContext: data.additionalContext,
+        },
+      )
+      .pipe(
+        retry(2),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Service error', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+
+  generateContent(
+    ideas: PostIdea[],
+    tone: ToneStyle,
+    topic: string,
+  ): Observable<{ success: boolean; data: GenerateContentResponse }> {
+    return this.http
+      .post<{ success: boolean; data: GenerateContentResponse }>(
+        `${environment.apiUrl}/ai-content/generate-content`,
+        {
+          ideas,
+          tone,
+          topic,
         },
       )
       .pipe(
