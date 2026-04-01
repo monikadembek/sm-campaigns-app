@@ -1,83 +1,92 @@
 <form [formRoot]="firstStepForm">
-  <div class="flex flex-col">
-    <div
-      class="p-10 border-2 border-solid border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-col flex-auto flex justify-center items-center font-medium"
-    >
-      <div class="field flex flex-col gap-2 mb-8">
-        <label for="topic">Topic:</label>
-        <textarea
-          rows="5"
-          cols="60"
-          id="topic"
-          class="textarea"
-          [formField]="firstStepForm.topic"
-          [class.textarea--invalid]="firstStepForm.topic().invalid() && firstStepForm.topic().touched()"
-        ></textarea>
-        @if(firstStepForm.topic().invalid() && firstStepForm.topic().touched())
-        { @for(err of firstStepForm.topic().errors(); track err.kind) {
-        <p class="form-error">{{err.message}}</p>
-        } }
-      </div>
+  <div
+    class="px-4 py-4 md:px-16 md:py-12 border-2 border-solid border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-col flex-auto flex justify-start items-start"
+  >
+    <h2 class="text-2xl font-semibold text-center mb-4">Generate ideas</h2>
+    <h3 class="font-medium mb-10">
+      Provide data that will be used to generate ideas for social media posts
+    </h3>
 
-      <div class="flex flex-col justify-center gap-4 mb-8">
-        <p>Platform type:</p>
-        @for(platform of platforms; track $index) {
-        <div class="flex items-center">
-          <p-checkbox
-            [inputId]="platform"
-            [value]="platform"
-            [formField]="firstStepForm.selectedPlatform"
-            [invalid]="firstStepForm.selectedPlatform().invalid() && firstStepForm.selectedPlatform().touched()"
-          />
-          <label for="twitter" class="ml-2">
-            {{platform[0] + platform.toLowerCase().substring(1)}}
-          </label>
-        </div>
-        } @if(firstStepForm.selectedPlatform().invalid() &&
-        firstStepForm.selectedPlatform().touched()) { @for(err of
-        firstStepForm.selectedPlatform().errors(); track err.kind) {
-        <p class="form-error">{{err.message}}</p>
-        } }
-      </div>
+    <div class="flex flex-col gap-2 mb-8 w-full">
+      <label for="topic" class="font-semibold">Topic:</label>
+      <textarea
+        rows="5"
+        id="topic"
+        class="textarea w-full"
+        [formField]="firstStepForm.topic"
+        [class.textarea--invalid]="firstStepForm.topic().invalid() && firstStepForm.topic().touched()"
+      ></textarea>
+      @if(firstStepForm.topic().invalid() && firstStepForm.topic().touched()) {
+      @for(err of firstStepForm.topic().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
+    </div>
 
-      <div class="flex flex-col justify-center gap-4 mb-8">
-        <p>Tone style:</p>
-        @for(tone of tones; track $index) {
-        <div class="field-checkbox">
-          <p-radiobutton
-            [inputId]="tone"
-            [value]="tone"
-            [formField]="firstStepForm.selectedTone"
-            [invalid]="firstStepForm.selectedTone().invalid() && firstStepForm.selectedTone().touched()"
-          />
-          <label [for]="tone" class="ml-2"
-            >{{ tone[0] + tone.toLowerCase().substring(1) }}</label
-          >
-        </div>
-        } @if(firstStepForm.selectedTone().invalid() &&
-        firstStepForm.selectedTone().touched()) { @for(err of
-        firstStepForm.selectedTone().errors(); track err.kind) {
-        <p class="form-error">{{err.message}}</p>
-        } }
-      </div>
-
-      <div class="field flex flex-col gap-2 mb-8">
-        <label for="ideasNumber">Number of ideas:</label>
-        <input
-          type="number"
-          id="ideasNumber"
-          pInputText
-          [formField]="firstStepForm.numberOfIdeas"
-          [class.invalid]="firstStepForm.numberOfIdeas().invalid() && firstStepForm.numberOfIdeas().touched()"
+    <div class="flex flex-col justify-center gap-4 mb-8">
+      <p class="font-semibold">Platform type:</p>
+      @for(platform of platforms; track $index) {
+      <div class="flex items-center">
+        <p-checkbox
+          [inputId]="platform"
+          [value]="platform"
+          [formField]="firstStepForm.selectedPlatform"
+          [invalid]="firstStepForm.selectedPlatform().invalid() && firstStepForm.selectedPlatform().touched()"
         />
-        @if(firstStepForm.numberOfIdeas().invalid() &&
-        firstStepForm.numberOfIdeas().touched()) { @for(err of
-        firstStepForm.numberOfIdeas().errors(); track err.kind) {
-        <p class="form-error">{{err.message}}</p>
-        } }
+        <label for="twitter" class="ml-2">
+          {{platform[0] + platform.toLowerCase().substring(1)}}
+        </label>
       </div>
+      } @if(firstStepForm.selectedPlatform().invalid() &&
+      firstStepForm.selectedPlatform().touched()) { @for(err of
+      firstStepForm.selectedPlatform().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
+    </div>
+
+    <div class="flex flex-col justify-center gap-4 mb-8">
+      <p class="font-semibold">Tone style:</p>
+      @for(tone of tones; track $index) {
+      <div class="field-checkbox">
+        <p-radiobutton
+          [inputId]="tone"
+          [value]="tone"
+          [formField]="firstStepForm.selectedTone"
+          [invalid]="firstStepForm.selectedTone().invalid() && firstStepForm.selectedTone().touched()"
+        />
+        <label [for]="tone" class="ml-2"
+          >{{ tone[0] + tone.toLowerCase().substring(1) }}</label
+        >
+      </div>
+      } @if(firstStepForm.selectedTone().invalid() &&
+      firstStepForm.selectedTone().touched()) { @for(err of
+      firstStepForm.selectedTone().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
+    </div>
+
+    <div class="flex flex-col gap-2">
+      <label for="ideasNumber" class="font-semibold">Number of ideas:</label>
+      <input
+        type="number"
+        id="ideasNumber"
+        pInputText
+        [formField]="firstStepForm.numberOfIdeas"
+        [class.invalid]="firstStepForm.numberOfIdeas().invalid() && firstStepForm.numberOfIdeas().touched()"
+      />
+      @if(firstStepForm.numberOfIdeas().invalid() &&
+      firstStepForm.numberOfIdeas().touched()) { @for(err of
+      firstStepForm.numberOfIdeas().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
     </div>
   </div>
+
+  @if(errorMessage()) {
+  <div class="mt-6 mb-2">
+    <p-message severity="error">{{errorMessage()}}</p-message>
+  </div>
+  }
+
   <div class="flex pt-6 justify-end">
     <p-button
       label="Next"

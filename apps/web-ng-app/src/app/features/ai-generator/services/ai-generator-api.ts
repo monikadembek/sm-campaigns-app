@@ -1,8 +1,12 @@
-import { HttpClient, httpResource } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+  httpResource,
+} from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
 import { FirstStepForm } from '../models/ai-generator.models';
-import { Observable } from 'rxjs';
+import { catchError, Observable, retry, throwError } from 'rxjs';
 import { GenerateIdeasResponse } from '@sm-campaigns-app/datatypes';
 
 @Injectable({
@@ -23,24 +27,40 @@ export class AiGeneratorApi {
   }
 
   createCampaign(name: string, goalId: number) {
-    return this.http.post<unknown>(`${environment.apiUrl}/campaigns`, {
-      name,
-      goalId,
-    });
+    return this.http
+      .post<unknown>(`${environment.apiUrl}/campaigns`, {
+        name,
+        goalId,
+      })
+      .pipe(
+        retry(2),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Service error', error);
+          return throwError(() => error);
+        }),
+      );
   }
 
   generateIdeas(
     data: FirstStepForm,
   ): Observable<{ success: boolean; data: GenerateIdeasResponse }> {
-    return this.http.post<{ success: boolean; data: GenerateIdeasResponse }>(
-      `${environment.apiUrl}/ai-content/generate-ideas`,
-      {
-        topic: data.topic,
-        platforms: data.selectedPlatform,
-        tone: data.selectedTone,
-        numberOfIdeas: data.numberOfIdeas,
-        additionalContext: data.additionalContext,
-      },
-    );
+    return this.http
+      .post<{ success: boolean; data: GenerateIdeasResponse }>(
+        `${environment.apiUrl}/ai-content/generate-idea`,
+        {
+          topic: data.topic,
+          platforms: data.selectedPlatform,
+          tone: data.selectedTone,
+          numberOfIdeas: data.numberOfIdeas,
+          additionalContext: data.additionalContext,
+        },
+      )
+      .pipe(
+        retry(2),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Service error', error);
+          return throwError(() => error);
+        }),
+      );
   }
 }

@@ -20,6 +20,8 @@ import { TextareaModule } from 'primeng/textarea';
 import { FirstStepForm } from '../models/ai-generator.models';
 import { AiGeneratorApi } from '../services/ai-generator-api';
 import { PlatformType, ToneStyle } from '@sm-campaigns-app/datatypes';
+import { MessageModule } from 'primeng/message';
+import { handleHttpErrorResponseMessage } from '../../../core/utils/errors-utils';
 
 @Component({
   selector: 'app-step1',
@@ -32,6 +34,7 @@ import { PlatformType, ToneStyle } from '@sm-campaigns-app/datatypes';
     CheckboxModule,
     RadioButtonModule,
     TextareaModule,
+    MessageModule,
   ],
   templateUrl: './step1.html',
   styleUrl: './step1.css',
@@ -40,6 +43,8 @@ export class Step1 {
   readonly activateCallback = input<(step: number) => void>();
 
   private readonly aiGeneratorApiService = inject(AiGeneratorApi);
+
+  readonly errorMessage = signal<string | null>(null);
 
   readonly firstStepModel = signal<FirstStepForm>({
     topic:
@@ -116,6 +121,7 @@ export class Step1 {
     await submit(this.firstStepForm, {
       action: async () => {
         console.log('step1 action fn', this.firstStepForm().value());
+        this.errorMessage.set(null);
         this.aiGeneratorApiService
           .generateIdeas(this.firstStepModel())
           .subscribe({
@@ -124,7 +130,11 @@ export class Step1 {
               this.activateCallback()?.(2);
             },
             error: (err) => {
-              console.error('Error', err);
+              console.error('Component error: error generating ideas', err);
+              const errorText = handleHttpErrorResponseMessage(err);
+              this.errorMessage.set(
+                `${errorText} Generating post ideas failed. Please try again later`,
+              );
             },
           });
       },
