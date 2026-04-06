@@ -5,11 +5,12 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { FirstStepForm, PostDraft } from '../models/ai-generator.models';
+import { FirstStepForm } from '../models/ai-generator.models';
 import { catchError, Observable, retry, throwError } from 'rxjs';
 import {
   CampaignSummary,
   GenerateContentResponse,
+  GeneratedPostContent,
   GenerateIdeasResponse,
   PostIdea,
   ToneStyle,
@@ -97,13 +98,13 @@ export class AiGeneratorApi {
       );
   }
 
-  saveDraftPosts(campaignId: string, posts: PostDraft[]) {
+  saveDraftPosts(campaignId: string, posts: GeneratedPostContent[]) {
     return this.http
       .post<{ success: boolean; data: GenerateContentResponse }>(
         `${environment.apiUrl}/ai-content/save-drafts`,
         {
           campaignId,
-          posts,
+          posts: posts.map(({ ideaId, ...post }) => post),
         },
       )
       .pipe(

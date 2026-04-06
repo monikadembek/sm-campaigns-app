@@ -2,7 +2,6 @@ import {
   ToneStyle,
   PlatformType,
   PostIdea,
-  PostTypeValue,
   GeneratedPostContent,
 } from '@sm-campaigns-app/datatypes';
 
@@ -16,13 +15,6 @@ export interface FirstStepForm {
 
 export interface SecondStepForm {
   postIdeas: PostIdea[];
-}
-
-export interface PostDraft {
-  platform: PlatformType;
-  postType: PostTypeValue;
-  content: string;
-  hashtags: string[];
 }
 
 export interface ThirdStepForm {
