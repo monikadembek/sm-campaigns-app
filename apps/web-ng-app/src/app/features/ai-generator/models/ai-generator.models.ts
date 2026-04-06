@@ -3,6 +3,7 @@ import {
   PlatformType,
   PostIdea,
   PostTypeValue,
+  GeneratedPostContent,
 } from '@sm-campaigns-app/datatypes';
 
 export interface FirstStepForm {
@@ -26,5 +27,5 @@ export interface PostDraft {
 
 export interface ThirdStepForm {
   campaignId: string;
-  posts: PostDraft[];
+  posts: GeneratedPostContent[];
 }

@@ -14,7 +14,7 @@
     <p-selectbutton
       [options]="campaignToggleSelectOptions"
       [ngModel]="campaignToggleSelectValue()"
-      (ngModelChange)="campaingSelectToggleChange($event)"
+      (ngModelChange)="campaignSelectToggleChange($event)"
       optionLabel="label"
       optionValue="value"
       aria-labelledby="basic"
@@ -22,12 +22,16 @@
   </div>
 
   @if(campaignToggleSelectValue() === "new") {
-  <form [formRoot]="campaignForm">
-    <div class="flex flex-col gap-2 mb-8">
+  <form
+    [formRoot]="campaignForm"
+    class="w-full md:w-80 p-5 border-2 border-solid border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950"
+  >
+    <div class="flex flex-col gap-2 mb-5">
       <label for="campaignName">Campaign name</label>
       <input
         pInputText
         id="campaignName"
+        class="w-full"
         aria-describedby="campaignName-help"
         [formField]="campaignForm.campaignName"
         [class.invalid]="campaignForm.campaignName().invalid() && campaignForm.campaignName().touched()"
@@ -38,7 +42,7 @@
       <p class="form-error">{{err.message}}</p>
       } }
     </div>
-    <div class="card flex flex-col justify-center gap-2 mb-8">
+    <div class="card flex flex-col justify-center gap-2 mb-5">
       <label for="goalId">Select goal for the new campaign</label>
       <p-select
         [options]="campaignGoalSelectOptions"
@@ -47,15 +51,16 @@
         optionLabel="label"
         optionValue="value"
         placeholder="Select a campaign goal"
-        class="w-full md:w-66"
+        class="w-full"
       />
     </div>
-    <p-button
-      class="mb-8"
-      label="Create new campaign"
-      severity="secondary"
-      (onClick)="createCampaign()"
-    />
+    <div class="w-full">
+      <p-button
+        label="Create new campaign"
+        severity="secondary"
+        (onClick)="createCampaign()"
+      />
+    </div>
   </form>
   }
   <form [formRoot]="thirdStepForm">
@@ -64,7 +69,8 @@
       <label for="campaignId">Select campaign</label>
       <p-select
         [options]="campaigns()"
-        [(ngModel)]="selectedCampaignId"
+        [ngModel]="selectedCampaignId()"
+        (ngModelChange)="selectedCampaignId.set($event)"
         name="campaignId"
         optionLabel="name"
         optionValue="id"
@@ -74,7 +80,7 @@
     </div>
     }
 
-    <div class="flex flex-col justify-center gap-4">
+    <div class="flex flex-col justify-center gap-4 mt-8">
       <p class="font-semibold">Generated post ideas:</p>
       @for(post of generatedPostsContent(); track $index) {
       <div class="mb-4">
@@ -86,14 +92,13 @@
             [invalid]="thirdStepForm.posts().invalid() && thirdStepForm.posts().touched()"
           />
           <label [for]="post.ideaId" class="ml-2">
-            <strong>Title: </strong>{{post.ideaId}}
+            <strong>Title: </strong>{{getPostIdeaTitle(post.ideaId)}}
           </label>
         </div>
         <div class="pl-7">
           <strong>Platform: </strong>{{post.platform.toLowerCase()}}<br />
           <strong>Post Type: </strong>
           {{post.postType.toLowerCase()}}<br />
-          <strong>Title:</strong><br />
           <strong>Content: </strong><br />{{post.content}}<br />
           <strong>Hashtags: </strong>{{post.hashtags.join(' ')}}<br />
         </div>

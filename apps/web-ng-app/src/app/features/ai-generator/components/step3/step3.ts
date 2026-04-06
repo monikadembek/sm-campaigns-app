@@ -5,6 +5,8 @@ import {
   inject,
   input,
   signal,
+  Signal,
+  untracked,
 } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { StepperModule } from 'primeng/stepper';
@@ -30,7 +32,12 @@ import { AiGeneratorStore } from '../../services/ai-generator-store';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { FormsModule } from '@angular/forms';
 import { SelectModule } from 'primeng/select';
-import { CampaignGoal, CampaignSummary } from '@sm-campaigns-app/datatypes';
+import {
+  CampaignGoal,
+  CampaignSummary,
+  GeneratedPostContent,
+  PostIdea,
+} from '@sm-campaigns-app/datatypes';
 import { MessageService } from 'primeng/api';
 
 @Component({
@@ -49,7 +56,6 @@ import { MessageService } from 'primeng/api';
     SelectModule,
     FormsModule,
   ],
-  providers: [MessageService],
   templateUrl: './step3.html',
   styleUrl: './step3.css',
 })
@@ -62,7 +68,9 @@ export class Step3 {
 
   readonly errorMessage = signal<string | null>(null);
 
-  readonly generatedPostsContent = this.aiGeneratorStore.generatedPostsContent;
+  readonly generatedIdeas: Signal<PostIdea[]> = this.aiGeneratorStore.ideas;
+  readonly generatedPostsContent: Signal<GeneratedPostContent[]> =
+    this.aiGeneratorStore.generatedPostsContent;
 
   campaignToggleSelectValue = signal('new');
   campaignToggleSelectOptions: { label: string; value: string }[] = [
@@ -80,20 +88,10 @@ export class Step3 {
   campaignGoalSelectOptions: { label: string; value: string }[] = [];
   selectedGoalId = '1';
 
-  campaignsResourceValue = signal<CampaignSummary[]>(
-    this.aiGeneratorApiService.getCampaigns().value() ?? [],
-  );
-  campaigns = computed(() => {
-    if (
-      this.campaignsResourceValue() &&
-      this.campaignsResourceValue().length > 0
-    ) {
-      return this.campaignsResourceValue();
-    } else {
-      return [];
-    }
-  });
-  selectedCampaignId = '';
+  private readonly campaignsResource =
+    this.aiGeneratorApiService.getCampaigns();
+  campaigns = computed(() => this.campaignsResource.value() ?? []);
+  selectedCampaignId = signal('');
 
   readonly campaignModel = signal({
     campaignName: '',
@@ -146,17 +144,30 @@ export class Step3 {
     );
 
     effect(() => {
-      this.campaignsResourceValue.set(
-        this.aiGeneratorApiService.getCampaigns().value(),
-      );
-      if (
-        this.campaignsResourceValue() &&
-        this.campaignsResourceValue().length > 0
-      ) {
-        this.selectedCampaignId = this.campaigns()[0].id;
+      const list = this.campaigns();
+      if (list.length > 0 && !this.selectedCampaignId()) {
+        this.selectedCampaignId.set(list[0].id);
       }
       console.log('campaigns list: ', this.campaigns());
     });
+
+    effect(() => {
+      const campaignId = this.selectedCampaignId();
+      // Wrap the write in untracked() so the effect only tracks selectedCampaignId
+      // and doesn't re-trigger when thirdStepModel changes, bc it lead to an infinite loop
+      untracked(() => {
+        this.thirdStepModel.set({
+          ...this.thirdStepModel(),
+          campaignId,
+        });
+      });
+    });
+  }
+
+  getPostIdeaTitle(ideaId: string): string {
+    return this.generatedIdeas().filter(
+      (idea: PostIdea) => idea.id === ideaId,
+    )[0].title;
   }
 
   private getGoals(): CampaignGoal[] {
@@ -209,7 +220,7 @@ export class Step3 {
     });
   }
 
-  campaingSelectToggleChange(value: string) {
+  campaignSelectToggleChange(value: string) {
     this.campaignToggleSelectValue.set(value);
   }
 
@@ -226,10 +237,7 @@ export class Step3 {
             detail: 'New campaign was created',
             life: 3000,
           });
-          this.thirdStepModel.set({
-            ...this.thirdStepModel(),
-            campaignId: res.id,
-          });
+          this.selectedCampaignId.set(res.id);
           this.aiGeneratorApiService.reloadCampaigns();
           this.campaignToggleSelectValue.set('existing');
         },
@@ -249,7 +257,10 @@ export class Step3 {
         console.log('second step form', this.thirdStepModel());
         this.errorMessage.set(null);
         this.aiGeneratorApiService
-          .saveDraftPosts(this.selectedCampaignId, this.thirdStepModel().posts)
+          .saveDraftPosts(
+            this.thirdStepModel().campaignId,
+            this.thirdStepModel().posts,
+          )
           .subscribe({
             next: (res) => {
               console.log('post content saved as drafts: ', res);
