@@ -105,3 +105,10 @@ export type SaveDraftPostsResponse = { savedCount: number; postIds: string[] };
 // Campaign helpers
 export type CampaignSummary = { id: string; name: string; status: string };
 export type CreateCampaignRequest = { name: string; goalId: number };
+
+export type CampaignGoal = {
+  id: number;
+  slug: string;
+  label: string;
+  sortOrder: number;
+};

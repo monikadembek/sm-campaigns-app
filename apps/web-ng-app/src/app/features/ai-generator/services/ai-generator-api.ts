@@ -5,9 +5,10 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { FirstStepForm } from '../models/ai-generator.models';
+import { FirstStepForm, PostDraft } from '../models/ai-generator.models';
 import { catchError, Observable, retry, throwError } from 'rxjs';
 import {
+  CampaignSummary,
   GenerateContentResponse,
   GenerateIdeasResponse,
   PostIdea,
@@ -20,7 +21,7 @@ import {
 export class AiGeneratorApi {
   private readonly http = inject(HttpClient);
 
-  #campaigns = httpResource<unknown>(
+  #campaigns = httpResource<CampaignSummary[]>(
     () => ({
       url: `${environment.apiUrl}/campaigns`,
     }),
@@ -31,9 +32,13 @@ export class AiGeneratorApi {
     return this.#campaigns.asReadonly();
   }
 
+  reloadCampaigns() {
+    return this.#campaigns.reload();
+  }
+
   createCampaign(name: string, goalId: number) {
     return this.http
-      .post<unknown>(`${environment.apiUrl}/campaigns`, {
+      .post<CampaignSummary>(`${environment.apiUrl}/campaigns`, {
         name,
         goalId,
       })
@@ -81,6 +86,24 @@ export class AiGeneratorApi {
           ideas,
           tone,
           topic,
+        },
+      )
+      .pipe(
+        retry(2),
+        catchError((error: HttpErrorResponse) => {
+          console.error('Service error', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+
+  saveDraftPosts(campaignId: string, posts: PostDraft[]) {
+    return this.http
+      .post<{ success: boolean; data: GenerateContentResponse }>(
+        `${environment.apiUrl}/ai-content/save-drafts`,
+        {
+          campaignId,
+          posts,
         },
       )
       .pipe(

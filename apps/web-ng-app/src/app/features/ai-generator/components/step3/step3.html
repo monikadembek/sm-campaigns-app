@@ -1,0 +1,123 @@
+<div
+  class="px-4 py-4 md:px-16 md:py-12 border-2 border-solid border-surface-200 dark:border-surface-700 rounded bg-surface-50 dark:bg-surface-950 flex-col flex-auto flex justify-start items-start"
+>
+  <h2 class="text-2xl font-semibold text-center mb-4">
+    Save generated post content as drafts
+  </h2>
+  <h3 class="font-medium mb-10">Select posts to save</h3>
+
+  <div class="flex flex-col justify-center gap-4">
+    <p class="font-semibold">Select or create new campaign</p>
+  </div>
+
+  <div class="mb-8">
+    <p-selectbutton
+      [options]="campaignToggleSelectOptions"
+      [ngModel]="campaignToggleSelectValue()"
+      (ngModelChange)="campaingSelectToggleChange($event)"
+      optionLabel="label"
+      optionValue="value"
+      aria-labelledby="basic"
+    />
+  </div>
+
+  @if(campaignToggleSelectValue() === "new") {
+  <form [formRoot]="campaignForm">
+    <div class="flex flex-col gap-2 mb-8">
+      <label for="campaignName">Campaign name</label>
+      <input
+        pInputText
+        id="campaignName"
+        aria-describedby="campaignName-help"
+        [formField]="campaignForm.campaignName"
+        [class.invalid]="campaignForm.campaignName().invalid() && campaignForm.campaignName().touched()"
+      />
+      @if(campaignForm.campaignName().invalid() &&
+      campaignForm.campaignName().touched()) { @for(err of
+      campaignForm.campaignName().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
+    </div>
+    <div class="card flex flex-col justify-center gap-2 mb-8">
+      <label for="goalId">Select goal for the new campaign</label>
+      <p-select
+        [options]="campaignGoalSelectOptions"
+        [(ngModel)]="selectedGoalId"
+        name="goalId"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select a campaign goal"
+        class="w-full md:w-66"
+      />
+    </div>
+    <p-button
+      class="mb-8"
+      label="Create new campaign"
+      severity="secondary"
+      (onClick)="createCampaign()"
+    />
+  </form>
+  }
+  <form [formRoot]="thirdStepForm">
+    @if(campaignToggleSelectValue() === "existing") {
+    <div class="card flex flex-col justify-center gap-2 mb-8">
+      <label for="campaignId">Select campaign</label>
+      <p-select
+        [options]="campaigns()"
+        [(ngModel)]="selectedCampaignId"
+        name="campaignId"
+        optionLabel="name"
+        optionValue="id"
+        placeholder="Select campaign"
+        class="w-full md:w-66"
+      />
+    </div>
+    }
+
+    <div class="flex flex-col justify-center gap-4">
+      <p class="font-semibold">Generated post ideas:</p>
+      @for(post of generatedPostsContent(); track $index) {
+      <div class="mb-4">
+        <div class="flex items-center">
+          <p-checkbox
+            [inputId]="post.ideaId"
+            [value]="post"
+            [formField]="thirdStepForm.posts"
+            [invalid]="thirdStepForm.posts().invalid() && thirdStepForm.posts().touched()"
+          />
+          <label [for]="post.ideaId" class="ml-2">
+            <strong>Title: </strong>{{post.ideaId}}
+          </label>
+        </div>
+        <div class="pl-7">
+          <strong>Platform: </strong>{{post.platform.toLowerCase()}}<br />
+          <strong>Post Type: </strong>
+          {{post.postType.toLowerCase()}}<br />
+          <strong>Title:</strong><br />
+          <strong>Content: </strong><br />{{post.content}}<br />
+          <strong>Hashtags: </strong>{{post.hashtags.join(' ')}}<br />
+        </div>
+      </div>
+      } @if(thirdStepForm.posts().invalid() && thirdStepForm.posts().touched())
+      { @for(err of thirdStepForm.posts().errors(); track err.kind) {
+      <p class="form-error">{{err.message}}</p>
+      } }
+    </div>
+  </form>
+</div>
+
+@if(errorMessage()) {
+<div class="mt-6 mb-2">
+  <p-message severity="error">{{errorMessage()}}</p-message>
+</div>
+}
+
+<div class="flex pt-6 justify-between">
+  <p-button
+    label="Back"
+    severity="secondary"
+    icon="pi pi-arrow-left"
+    (onClick)="handlePreviousStep()"
+  />
+  <p-button label="Save Post Drafts" iconPos="right" (onClick)="saveDrafts()" />
+</div>
