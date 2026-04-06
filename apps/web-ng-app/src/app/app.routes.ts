@@ -4,7 +4,7 @@ import { guestGuard } from './core/auth/guards/guest-guard';
 
 export const appRoutes: Route[] = [
   {
-    path: 'ai-generator',
+    path: 'ai-content-generator',
     loadComponent: () =>
       import('./features/ai-generator/ai-generator').then((m) => m.AiGenerator),
     canActivate: [authGuard],

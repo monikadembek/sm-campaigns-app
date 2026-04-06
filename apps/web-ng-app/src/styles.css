@@ -1,6 +1,35 @@
 @import 'tailwindcss';
 @import 'tailwindcss-primeui';
+@import 'primeicons/primeicons.css';
 
 body {
   font-family: sans-serif;
+}
+
+.form-error {
+  color: crimson;
+  font-size: 14px;
+}
+
+.textarea {
+  font-family: inherit;
+  font-feature-settings: inherit;
+  font-size: 1rem;
+  color: #334155;
+  background-color: #fff;
+  padding-block: 0.5em;
+  padding-inline: 0.75em;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  outline-color: transparent;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #000000;
+  background-color: #fff;
+}
+
+.textarea--invalid {
+  border: 1px solid #f87171;
 }

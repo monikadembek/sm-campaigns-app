@@ -1,1 +1,29 @@
-<p>ai-generator works!</p>
+<h1 class="text-2xl font-semibold text-center mb-10 mt-12">
+  AI Content Generator
+</h1>
+<div class="card flex justify-center">
+  <p-stepper [value]="1" class="w-[90%] md:w-150 lg:w-200" [linear]="true">
+    <p-step-list class="flex flex-col md:flex-row">
+      <p-step [value]="1">Generate Ideas</p-step>
+      <p-step [value]="2">Generate Posts</p-step>
+      <p-step [value]="3">Save Posts</p-step>
+    </p-step-list>
+    <p-step-panels>
+      <p-step-panel [value]="1">
+        <ng-template #content let-activateCallback="activateCallback">
+          <app-step1 [activateCallback]="activateCallback"></app-step1>
+        </ng-template>
+      </p-step-panel>
+      <p-step-panel [value]="2">
+        <ng-template #content let-activateCallback="activateCallback">
+          <app-step2 [activateCallback]="activateCallback"></app-step2>
+        </ng-template>
+      </p-step-panel>
+      <p-step-panel [value]="3">
+        <ng-template #content let-activateCallback="activateCallback">
+          <app-step3 [activateCallback]="activateCallback"></app-step3>
+        </ng-template>
+      </p-step-panel>
+    </p-step-panels>
+  </p-stepper>
+</div>

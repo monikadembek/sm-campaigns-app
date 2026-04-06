@@ -30,9 +30,8 @@ export class TopMenu implements OnInit {
   ngOnInit(): void {
     this.items = [
       {
-        label: 'AI Generator',
-        routerLink: '/ai-generator',
-        //   icon: 'pi pi-home',
+        label: 'AI Content Generator',
+        routerLink: '/ai-content-generator',
       },
     ];
   }
