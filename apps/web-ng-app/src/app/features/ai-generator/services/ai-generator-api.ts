@@ -1,5 +1,6 @@
 import {
   HttpClient,
+  HttpContext,
   HttpErrorResponse,
   httpResource,
 } from '@angular/common/http';
@@ -15,6 +16,7 @@ import {
   PostIdea,
   ToneStyle,
 } from '@sm-campaigns-app/datatypes';
+import { SkipLoadingToken } from '../../../core/interceptors/skip-loading-token';
 
 @Injectable({
   providedIn: 'root',
@@ -25,6 +27,7 @@ export class AiGeneratorApi {
   #campaigns = httpResource<CampaignSummary[]>(
     () => ({
       url: `${environment.apiUrl}/campaigns`,
+      context: new HttpContext().set(SkipLoadingToken, true),
     }),
     { defaultValue: [] },
   );
