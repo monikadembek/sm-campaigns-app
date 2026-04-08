@@ -112,3 +112,33 @@ export type CampaignGoal = {
   label: string;
   sortOrder: number;
 };
+
+export type CampaignStatus =
+  | 'DRAFT'
+  | 'ACTIVE'
+  | 'PAUSED'
+  | 'COMPLETED'
+  | 'ARCHIVED';
+
+export type PostLimitedData = {
+  id: string;
+  platform: PlatformType;
+  postType: PostTypeValue;
+};
+
+export type Campaign = {
+  id: string;
+  userId: string;
+  goalId: number;
+  name: string;
+  audience: string | null;
+  startDate: Date | string | null;
+  endDate: Date | string | null;
+  timezone: string;
+  status: CampaignStatus;
+  notes: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  goal: CampaignGoal;
+  posts: PostLimitedData[];
+};
