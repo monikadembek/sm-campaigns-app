@@ -7,6 +7,7 @@ describe('CampaignService', () => {
   let prisma: {
     campaign: {
       findMany: jest.Mock;
+      findUnique: jest.Mock;
       create: jest.Mock;
       delete: jest.Mock;
     };
@@ -16,6 +17,7 @@ describe('CampaignService', () => {
     prisma = {
       campaign: {
         findMany: jest.fn(),
+        findUnique: jest.fn(),
         create: jest.fn(),
         delete: jest.fn(),
       },
@@ -121,6 +123,85 @@ describe('CampaignService', () => {
       const result = await service.getCampaignsFull('user-no-campaigns');
 
       expect(result).toEqual([]);
+    });
+  });
+
+  describe('getCampaign', () => {
+    it('should return a single campaign with goal, posts, and media', async () => {
+      const mockCampaign = {
+        id: 'campaign-1',
+        userId: 'user-123',
+        goalId: 1,
+        name: 'Campaign 1',
+        audience: null,
+        startDate: null,
+        endDate: null,
+        timezone: null,
+        status: 'DRAFT',
+        notes: null,
+        createdAt: new Date('2026-01-01'),
+        updatedAt: new Date('2026-01-02'),
+        goal: { id: 1, slug: 'awareness', label: 'Brand Awareness', sortOrder: 1 },
+        posts: [
+          {
+            id: 'post-1',
+            platform: 'INSTAGRAM',
+            postType: 'IMAGE',
+            postMedia: [
+              {
+                id: 'pm-1',
+                media: { id: 'media-1', url: 'https://example.com/image.jpg' },
+              },
+            ],
+          },
+        ],
+      };
+      prisma.campaign.findUnique.mockResolvedValue(mockCampaign);
+
+      const result = await service.getCampaign('campaign-1', 'user-123');
+
+      expect(result).toEqual(mockCampaign);
+      expect(prisma.campaign.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: 'campaign-1',
+          userId: 'user-123',
+        },
+        include: {
+          goal: true,
+          posts: {
+            include: {
+              postMedia: {
+                include: {
+                  media: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    });
+
+    it('should return null when campaign is not found', async () => {
+      prisma.campaign.findUnique.mockResolvedValue(null);
+
+      const result = await service.getCampaign('nonexistent-id', 'user-123');
+
+      expect(result).toBeNull();
+    });
+
+    it('should return null when campaign belongs to a different user', async () => {
+      prisma.campaign.findUnique.mockResolvedValue(null);
+
+      const result = await service.getCampaign('campaign-1', 'other-user');
+
+      expect(result).toBeNull();
+      expect(prisma.campaign.findUnique).toHaveBeenCalledWith({
+        where: {
+          id: 'campaign-1',
+          userId: 'other-user',
+        },
+        include: expect.any(Object),
+      });
     });
   });
 
