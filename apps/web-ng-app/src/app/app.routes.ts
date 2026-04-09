@@ -10,6 +10,12 @@ export const appRoutes: Route[] = [
     canActivate: [authGuard],
   },
   {
+    path: 'campaigns',
+    loadComponent: () =>
+      import('./features/campaigns/campaigns').then((m) => m.Campaigns),
+    canActivate: [authGuard],
+  },
+  {
     path: 'login',
     loadComponent: () =>
       import('./core/auth/pages/login/login').then((m) => m.Login),

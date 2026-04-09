@@ -1,0 +1,33 @@
+<div class="container">
+  <h1 class="text-2xl font-semibold text-center mb-10">Campaigns</h1>
+  @if(campaignsResource.hasValue()) {
+  <div class="card">
+    <p-dataview #dv [value]="campaignsResource.value()">
+      <ng-template #list let-items>
+        <div class="flex flex-col">
+          @for(item of items; track item.id){
+          <div class="mb-5" [routerLink]="['/campaigns', item.id]">
+            <p-card
+              [header]="item.name"
+              class="border-1 border-emerald-500 border-solid hover:border-2 hover:cursor-pointer"
+            >
+              <div class="flex flex-col md:flex-row md:justify-between gap-2">
+                <p>Posts: {{item.posts.length}}</p>
+                <p>
+                  <span class="inline-block mr-4"
+                    >Starts: {{item.startDate ?? 'n/a'}}</span
+                  >Ends: {{item.endDate ?? 'n/a'}}
+                </p>
+                <p-tag severity="success" [value]="item.status" />
+              </div>
+            </p-card>
+          </div>
+          }
+        </div>
+      </ng-template>
+    </p-dataview>
+  </div>
+  } @if(campaignsResource.error()) {
+  <p-message severity="error">{{campaignsResource.error()}}</p-message>
+  }
+</div>
