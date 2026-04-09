@@ -37,6 +37,28 @@ export class CampaignService {
     return campaigns;
   }
 
+  async getCampaign(id: string, userId: string): Promise<Campaign | null> {
+    const campaign = await this.prisma.campaign.findUnique({
+      where: {
+        id,
+        userId,
+      },
+      include: {
+        goal: true,
+        posts: {
+          include: {
+            postMedia: {
+              include: {
+                media: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return campaign;
+  }
+
   async createCampaign(
     userId: string,
     data: CreateCampaignRequest,
