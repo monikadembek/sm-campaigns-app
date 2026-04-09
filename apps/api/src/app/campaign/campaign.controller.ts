@@ -7,7 +7,9 @@ import {
   HttpException,
   InternalServerErrorException,
   Logger,
+  NotFoundException,
   Param,
+  ParseUUIDPipe,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -16,6 +18,7 @@ import { CampaignService } from './campaign.service';
 import { CurrentUser } from '../shared/current-user.decorator';
 import { Campaign, CampaignSummary } from '@sm-campaigns-app/datatypes';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { NotFoundError } from 'rxjs';
 
 @UseGuards(AuthGuard)
 @Controller('campaigns')
@@ -50,6 +53,26 @@ export class CampaignController {
     }
   }
 
+  @Get(':id')
+  async getSingleCampaign(
+    @Param('id', ParseUUIDPipe) id: string,
+    @CurrentUser('id') userId: string,
+  ): Promise<Campaign | null> {
+    try {
+      const campaign = await this.campaignService.getCampaign(id, userId);
+      if (!campaign) {
+        throw new NotFoundException(`Campaign with id: ${id} not found`);
+      }
+      return campaign;
+    } catch (error) {
+      this.logger.error(`Error fetching campaign with id: ${id}: `, error);
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        `Failed fetching campaign with id: ${id}`,
+      );
+    }
+  }
+
   @Post()
   async createCampaign(
     @CurrentUser('id') userId: string,
@@ -67,7 +90,7 @@ export class CampaignController {
   @Delete(':id')
   async deleteCampaign(
     @CurrentUser('id') userId: string,
-    @Param('id') id: string,
+    @Param('id', ParseUUIDPipe) id: string,
   ): Promise<string> {
     try {
       if (!id) {
