@@ -33,6 +33,10 @@ export class TopMenu implements OnInit {
         label: 'AI Content Generator',
         routerLink: '/ai-content-generator',
       },
+      {
+        label: 'Campaigns',
+        routerLink: '/campaigns',
+      },
     ];
   }
 
