@@ -18,7 +18,6 @@ import { CampaignService } from './campaign.service';
 import { CurrentUser } from '../shared/current-user.decorator';
 import { Campaign, CampaignSummary } from '@sm-campaigns-app/datatypes';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
-import { NotFoundError } from 'rxjs';
 
 @UseGuards(AuthGuard)
 @Controller('campaigns')
