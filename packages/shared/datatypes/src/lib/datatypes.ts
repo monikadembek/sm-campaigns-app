@@ -126,7 +126,7 @@ export type PostLimitedData = {
   postType: PostTypeValue;
 };
 
-export type Campaign = {
+type CampaignBase = {
   id: string;
   userId: string;
   goalId: number;
@@ -140,5 +140,53 @@ export type Campaign = {
   createdAt: Date | string;
   updatedAt: Date | string;
   goal: CampaignGoal;
-  posts: PostLimitedData[];
 };
+
+export type Campaign = CampaignBase & { posts: PostLimitedData[] };
+
+export type CampaignDetails = CampaignBase & { posts: Post[] };
+
+export type Post = {
+  id: string;
+  campaignId: string;
+  ctaId: string | null;
+  platform: PlatformType;
+  postType: PostTypeValue;
+  content: string;
+  hashtags: string[];
+  publishDate: Date | string | null;
+  scheduledAt: Date | string | null;
+  publishedAt: Date | string | null;
+  status: PostStatus;
+  errorLog: string | null;
+  createdAt: Date | string;
+  updatedAt: Date | string;
+  postMedia: PostMedia[];
+};
+
+export type PostStatus = 'DRAFT' | 'SCHEDULED' | 'PUBLISHED' | 'FAILED';
+
+export type PostMedia = {
+  postId: string;
+  mediaId: string;
+  sortOrder: number;
+  media: Media;
+};
+
+export type Media = {
+  id: string;
+  userId: string;
+  storageKey: string;
+  publicUrl: string;
+  filename: string;
+  mimeType: string;
+  mediaType: MediaType;
+  sizeBytes: number;
+  width: number | null;
+  height: number | null;
+  durationSecs: number | null;
+  altText: string | null;
+  createdAt: Date;
+};
+
+export type MediaType = 'IMAGE' | 'VIDEO' | 'GIF' | 'DOCUMENT';
