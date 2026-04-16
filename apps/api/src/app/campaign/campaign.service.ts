@@ -96,11 +96,10 @@ export class CampaignService {
 
     if ('startDate' in data) {
       updateData.startDate =
-        data.startDate === null ? null : new Date(data.startDate);
+        data.startDate == null ? null : new Date(data.startDate);
     }
     if ('endDate' in data) {
-      updateData.endDate =
-        data.endDate === null ? null : new Date(data.endDate);
+      updateData.endDate = data.endDate == null ? null : new Date(data.endDate);
     }
 
     const updatedCampaign = await this.prisma.campaign.update({

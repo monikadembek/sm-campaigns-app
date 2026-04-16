@@ -40,7 +40,7 @@ export class UpdateCampaignDto {
   startDate?: Date | null;
 
   @IsOptional()
-  @ValidateIf((o) => o.startDate !== null)
+  @ValidateIf((o) => o.endDate !== null)
   @IsDateString()
   endDate?: Date | null;
 
