@@ -6,32 +6,38 @@ export const appRoutes: Route[] = [
   {
     path: 'ai-content-generator',
     loadComponent: () =>
-      import('./features/ai-generator/ai-generator').then((m) => m.AiGenerator),
+      import('./features/ai-generator/ai-generator').then((c) => c.AiGenerator),
     canActivate: [authGuard],
   },
   {
     path: 'campaigns',
     loadComponent: () =>
-      import('./features/campaigns/campaigns').then((m) => m.Campaigns),
+      import('./features/campaigns/campaigns').then((c) => c.Campaigns),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'campaigns/:id',
+    loadComponent: () =>
+      import('./features/campaign/campaign').then((c) => c.Campaign),
     canActivate: [authGuard],
   },
   {
     path: 'login',
     loadComponent: () =>
-      import('./core/auth/pages/login/login').then((m) => m.Login),
+      import('./core/auth/pages/login/login').then((c) => c.Login),
     canActivate: [guestGuard],
   },
   {
     path: 'verify',
     loadComponent: () =>
-      import('./core/auth/pages/verify/verify').then((m) => m.Verify),
+      import('./core/auth/pages/verify/verify').then((c) => c.Verify),
     canActivate: [guestGuard],
   },
   {
     path: '',
     pathMatch: 'full',
     loadComponent: () =>
-      import('./features/dashboard/dashboard').then((m) => m.Dashboard),
+      import('./features/dashboard/dashboard').then((c) => c.Dashboard),
     canActivate: [authGuard],
   },
   {

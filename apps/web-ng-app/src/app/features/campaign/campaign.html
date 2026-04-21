@@ -1,0 +1,129 @@
+@if(campaignDetails.error()) {
+<div class="p-5">
+  <p-message severity="error">{{campaignDetails.error()}}</p-message>
+</div>
+} @else if(campaignDetails.hasValue()) {
+<div class="campaign-nav">
+  <div>
+    <a routerLink="/campaigns" class="campaign-link">Campaign</a> /
+    {{campaignDetails.value().name }}
+  </div>
+  <div>
+    <p-button
+      label="Delete campaign"
+      (onClick)="deleteCampaign()"
+      class="mr-4"
+      variant="outlined"
+      size="small"
+      severity="danger"
+    />
+    <p-button label="Edit campaign" (onClick)="editCampaign()" size="small" />
+  </div>
+</div>
+
+<div class="campaign-container">
+  <div class="campaign-container--left">
+    <div class="campaign-details">
+      <div class="campaign-details__title-container">
+        <h1 class="campaign-details__title">
+          {{campaignDetails.value().name }}
+        </h1>
+        <p-tag
+          [value]="campaignDetails.value().status.toUpperCase()"
+          severity="secondary"
+        ></p-tag>
+      </div>
+      <div class="mb-3">
+        <div class="campaign-details__header">Goal</div>
+        <div class="campaign-details__value">
+          {{campaignDetails.value().goal.label }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="campaign-details__header">Start date</div>
+        <div class="campaign-details__value">
+          {{campaignDetails.value().startDate || 'Not set' }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="campaign-details__header">End date</div>
+        <div class="campaign-details__value">
+          {{campaignDetails.value().endDate || 'Not set' }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="campaign-details__header">Audience</div>
+        <div class="campaign-details__value">
+          {{campaignDetails.value().audience || 'Not defined' }}
+        </div>
+      </div>
+      <div class="mb-3">
+        <div class="campaign-details__header">Notes</div>
+        <div class="campaign-details__value">
+          {{campaignDetails.value().notes || 'No notes added' }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="campaign-container--right">
+    <div class="posts__header">
+      <h2>Posts ({{campaignDetails.value().posts.length}})</h2>
+      <p-button
+        label="Add post"
+        size="small"
+        variant="outlined"
+        severity="success"
+        (onClick)="addPost()"
+      ></p-button>
+    </div>
+
+    @if (campaignDetails.value().posts.length > 0) {
+    <div class="posts-container">
+      @for(post of campaignDetails.value().posts; track post.id) {
+      <p-panel [toggleable]="true" class="mb-4">
+        <ng-template #header>
+          <div class="post__header-container">
+            <p class="post__number">{{$index+1}}</p>
+            <div class="">
+              <div class="post__header">
+                <span class="post__platform">{{post.platform}}</span>
+                <p-tag
+                  [value]="post.status.toUpperCase()"
+                  severity="secondary"
+                ></p-tag>
+                <span class="post__type">{{post.postType}}</span>
+              </div>
+              <p class="post__content-short">{{post.content }}</p>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #footer>
+          <div class="post__footer-container">
+            <p-button
+              label="Edit"
+              (onClick)="editPost()"
+              class="mr-2"
+              size="small"
+              severity="success"
+            />
+            <p-button
+              label="Schedule"
+              (onClick)="schedulePost()"
+              class="mr-4"
+              variant="outlined"
+              size="small"
+              severity="success"
+            />
+          </div>
+        </ng-template>
+        <p class="">{{post.content }}</p>
+      </p-panel>
+      }
+    </div>
+    } @else {
+    <p>No posts are currently added to the campaign</p>
+    }
+  </div>
+</div>
+}

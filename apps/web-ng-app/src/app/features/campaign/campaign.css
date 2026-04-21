@@ -1,0 +1,157 @@
+.row {
+  margin-bottom: 10px;
+  padding: 10px;
+}
+
+.name {
+  font-weight: bold;
+  color: #222;
+}
+
+.campaign-nav {
+  padding: 14px 24px 0px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.campaign-link {
+  font-weight: bold;
+  color: #10b981;
+  transition: all 0.3s;
+
+  &:hover {
+    color: #047857;
+  }
+}
+
+.campaign-container {
+  flex: 1 1 0%;
+  display: flex;
+  gap: 20px;
+  padding: 16px 24px 24px;
+  overflow: hidden;
+}
+
+.campaign-container--left {
+  width: 260px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.campaign-container--right {
+  flex: 1 1 0%;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.campaign-details {
+  background: fff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 20px;
+  box-shadow: rgba(0, 0, 0, 0.04) 0px 1px 3px;
+}
+
+.campaign-details__title-container {
+  display: flex;
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.campaign-details__title {
+  font-size: 16px;
+  font-weight: 700;
+  color: rgb(15, 23, 42);
+  letter-spacing: -0.3px;
+}
+
+.campaign-details__header {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 3px;
+}
+
+.campaign-details__value {
+  font-size: 14px;
+  color: #334155;
+  font-weight: 500;
+}
+
+.posts__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.posts__header h2 {
+  font-size: 14px;
+  font-weight: 700;
+  color: rgb(15, 23, 42);
+}
+
+.post__header-container {
+  padding: 14px 18px 14px 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.post__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 3px;
+}
+
+.post__platform {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgb(30, 41, 59);
+}
+
+.post__type {
+  font-size: 14px;
+  color: #9da5af;
+  background: rgb(248, 250, 252);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 500;
+}
+
+.post__number {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: #bbf7d0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #1b2c1b;
+  flex-shrink: 0;
+}
+
+.post__content-short {
+  font-size: 12px;
+  color: rgb(100, 116, 139);
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 600px;
+}
+
+.post__footer-container {
+  display: flex;
+  gap: 6px;
+  margin-top: 12px;
+}
