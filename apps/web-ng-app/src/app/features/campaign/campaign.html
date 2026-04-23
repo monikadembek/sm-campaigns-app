@@ -3,12 +3,14 @@
   <p-message severity="error">{{campaignDetails.error()}}</p-message>
 </div>
 } @else if(campaignDetails.hasValue()) {
+
 <div class="campaign-nav">
   <div>
     <a routerLink="/campaigns" class="campaign-link">Campaigns</a> /
     {{campaignDetails.value().name }}
   </div>
   <div>
+    @if(mode() === 'read') {
     <p-button
       label="Delete campaign"
       (onClick)="confirmDelete($event)"
@@ -18,52 +20,19 @@
       severity="danger"
     />
     <p-button label="Edit campaign" (onClick)="editCampaign()" size="small" />
+    }
   </div>
 </div>
 
 <div class="campaign-container">
   <div class="campaign-container--left">
-    <div class="campaign-details">
-      <div class="campaign-details__title-container">
-        <h1 class="campaign-details__title">
-          {{campaignDetails.value().name }}
-        </h1>
-        <p-tag
-          [value]="campaignDetails.value().status.toUpperCase()"
-          severity="secondary"
-        ></p-tag>
-      </div>
-      <div class="mb-3">
-        <div class="campaign-details__header">Goal</div>
-        <div class="campaign-details__value">
-          {{campaignDetails.value().goal.label }}
-        </div>
-      </div>
-      <div class="mb-3">
-        <div class="campaign-details__header">Start date</div>
-        <div class="campaign-details__value">
-          {{campaignDetails.value().startDate || 'Not set' }}
-        </div>
-      </div>
-      <div class="mb-3">
-        <div class="campaign-details__header">End date</div>
-        <div class="campaign-details__value">
-          {{campaignDetails.value().endDate || 'Not set' }}
-        </div>
-      </div>
-      <div class="mb-3">
-        <div class="campaign-details__header">Audience</div>
-        <div class="campaign-details__value">
-          {{campaignDetails.value().audience || 'Not defined' }}
-        </div>
-      </div>
-      <div class="mb-3">
-        <div class="campaign-details__header">Notes</div>
-        <div class="campaign-details__value">
-          {{campaignDetails.value().notes || 'No notes added' }}
-        </div>
-      </div>
-    </div>
+    @if(mode() === 'read') {
+    <app-campaign-details-component
+      [campaignData]="campaignDetails.value()"
+    ></app-campaign-details-component>
+    } @else {
+    <p>edit campaing</p>
+    }
   </div>
 
   <div class="campaign-container--right">

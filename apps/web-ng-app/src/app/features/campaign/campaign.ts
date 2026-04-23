@@ -4,6 +4,7 @@ import {
   effect,
   inject,
   Resource,
+  signal,
   Signal,
 } from '@angular/core';
 import { CampaignStore } from './services/campaign-store';
@@ -18,6 +19,7 @@ import { TagModule } from 'primeng/tag';
 import { PanelModule } from 'primeng/panel';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { handleHttpErrorResponseMessage } from '../../core/utils/errors-utils';
+import { CampaignDetailsComponent } from './components/campaign-details/campaign-details';
 
 @Component({
   selector: 'app-campaign',
@@ -28,6 +30,7 @@ import { handleHttpErrorResponseMessage } from '../../core/utils/errors-utils';
     TagModule,
     PanelModule,
     ConfirmDialogModule,
+    CampaignDetailsComponent,
   ],
   templateUrl: './campaign.html',
   styleUrl: './campaign.css',
@@ -43,6 +46,8 @@ export class Campaign {
 
   campaignId: Signal<string> = this.campaignStore.campaignId;
   campaignDetails!: Resource<CampaignDetails | undefined>;
+
+  mode = signal<'edit' | 'read'>('read');
 
   constructor() {
     this.route.params.subscribe((params) =>
@@ -72,7 +77,7 @@ export class Campaign {
   }
 
   editCampaign() {
-    console.log('edit campaign');
+    this.mode.set('edit');
   }
 
   confirmDelete(event: Event) {
