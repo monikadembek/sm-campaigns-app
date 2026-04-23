@@ -23,6 +23,7 @@ export class Campaigns {
   readonly campaignsResource = this.campaignsApi.campaignsFullData;
 
   constructor() {
+    this.campaignsApi.reloadCampaigns();
     effect(() => {
       console.log('campaigns: ', this.campaignsResource.value());
       console.log('error', this.campaignsResource.error());

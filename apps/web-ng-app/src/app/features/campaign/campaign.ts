@@ -11,15 +11,24 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CampaignApi } from './services/campaign-api';
 import { CampaignDetails } from '@sm-campaigns-app/datatypes';
 import { HttpErrorResponse } from '@angular/common/http';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { PanelModule } from 'primeng/panel';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { handleHttpErrorResponseMessage } from '../../core/utils/errors-utils';
 
 @Component({
   selector: 'app-campaign',
-  imports: [MessageModule, ButtonModule, RouterLink, TagModule, PanelModule],
+  imports: [
+    MessageModule,
+    ButtonModule,
+    RouterLink,
+    TagModule,
+    PanelModule,
+    ConfirmDialogModule,
+  ],
   templateUrl: './campaign.html',
   styleUrl: './campaign.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -30,6 +39,7 @@ export class Campaign {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
+  private readonly confirmationService = inject(ConfirmationService);
 
   campaignId: Signal<string> = this.campaignStore.campaignId;
   campaignDetails!: Resource<CampaignDetails | undefined>;
@@ -65,8 +75,51 @@ export class Campaign {
     console.log('edit campaign');
   }
 
-  deleteCampaign() {
-    console.log('delete campaign');
+  confirmDelete(event: Event) {
+    console.log(event);
+    this.confirmationService.confirm({
+      target: event.target as EventTarget,
+      message: 'Do you want to delete this campaign?',
+      header: 'Confirm',
+      icon: 'pi pi-info-circle',
+      rejectLabel: 'Cancel',
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
+      acceptButtonProps: {
+        label: 'Delete',
+        severity: 'danger',
+      },
+
+      accept: () => {
+        this.deleteCampaign(this.campaignId());
+      },
+    });
+  }
+
+  deleteCampaign(id: string) {
+    this.campaignApiService.deleteCampaign(id).subscribe({
+      next: (res) => {
+        console.log(res);
+        this.messageService.add({
+          severity: 'info',
+          summary: 'Confirmed',
+          detail: `Campaign with id ${id} was deleted`,
+        });
+        this.router.navigate(['/campaigns']);
+      },
+      error: (err) => {
+        console.error('Error when deleting campaign: ', err);
+        const errorText = handleHttpErrorResponseMessage(err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Deleting campaign with id ${id} failed. ${errorText}`,
+        });
+      },
+    });
   }
 
   addPost() {

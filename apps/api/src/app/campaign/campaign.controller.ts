@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -126,17 +125,22 @@ export class CampaignController {
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<string> {
     try {
-      if (!id) {
-        throw new BadRequestException('Invalid campaign id provided');
-      }
       await this.campaignService.deleteCampaign(id, userId);
       return `Campaign with id: ${id} was successfully deleted`;
     } catch (error) {
-      this.logger.error('Error when deleting campaing: ', error);
+      this.logger.error(`Error when deleting campaign with id ${id}: `, error);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(`Campaign with id: ${id} not found`);
+      }
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new InternalServerErrorException('Failed deleting campaign');
+      throw new InternalServerErrorException(
+        `Failed deleting campaign with id ${id}`,
+      );
     }
   }
 }

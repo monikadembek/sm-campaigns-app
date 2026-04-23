@@ -5,13 +5,13 @@
 } @else if(campaignDetails.hasValue()) {
 <div class="campaign-nav">
   <div>
-    <a routerLink="/campaigns" class="campaign-link">Campaign</a> /
+    <a routerLink="/campaigns" class="campaign-link">Campaigns</a> /
     {{campaignDetails.value().name }}
   </div>
   <div>
     <p-button
       label="Delete campaign"
-      (onClick)="deleteCampaign()"
+      (onClick)="confirmDelete($event)"
       class="mr-4"
       variant="outlined"
       size="small"
@@ -127,3 +127,4 @@
   </div>
 </div>
 }
+<p-confirmdialog />
