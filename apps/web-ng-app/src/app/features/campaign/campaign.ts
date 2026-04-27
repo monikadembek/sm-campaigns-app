@@ -20,6 +20,8 @@ import { PanelModule } from 'primeng/panel';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { handleHttpErrorResponseMessage } from '../../core/utils/errors-utils';
 import { CampaignDetailsComponent } from './components/campaign-details/campaign-details';
+import { CampaignEdit } from './components/campaign-edit/campaign-edit';
+import { CampaignForm } from './campaign.model';
 
 @Component({
   selector: 'app-campaign',
@@ -31,6 +33,7 @@ import { CampaignDetailsComponent } from './components/campaign-details/campaign
     PanelModule,
     ConfirmDialogModule,
     CampaignDetailsComponent,
+    CampaignEdit,
   ],
   templateUrl: './campaign.html',
   styleUrl: './campaign.css',
@@ -76,8 +79,12 @@ export class Campaign {
     });
   }
 
+  setMode(mode: 'edit' | 'read') {
+    this.mode.set(mode);
+  }
+
   editCampaign() {
-    this.mode.set('edit');
+    this.setMode('edit');
   }
 
   confirmDelete(event: Event) {
@@ -125,6 +132,32 @@ export class Campaign {
         });
       },
     });
+  }
+
+  saveCampaignForm(formValues: CampaignForm) {
+    this.setMode('read');
+    this.campaignApiService
+      .saveEditedCampaign(this.campaignId(), formValues)
+      .subscribe({
+        next: (res) => {
+          console.log(res);
+          this.messageService.add({
+            severity: 'info',
+            summary: 'Saved',
+            detail: `Campaign with id ${this.campaignId()} was updated`,
+          });
+          this.campaignApiService.reloadCampaign();
+        },
+        error: (err) => {
+          console.error('Error when updating campaign: ', err);
+          const errorText = handleHttpErrorResponseMessage(err);
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: `Updating campaign with id ${this.campaignId()} failed. ${errorText}`,
+          });
+        },
+      });
   }
 
   addPost() {

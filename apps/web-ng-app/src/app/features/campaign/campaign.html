@@ -31,7 +31,11 @@
       [campaignData]="campaignDetails.value()"
     ></app-campaign-details-component>
     } @else {
-    <p>edit campaing</p>
+    <app-campaign-edit
+      [campaignData]="campaignDetails.value()"
+      (cancelEdit)="setMode('read')"
+      (saveEditedForm)="saveCampaignForm($event)"
+    ></app-campaign-edit>
     }
   </div>
 

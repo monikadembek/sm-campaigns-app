@@ -8,6 +8,7 @@ import { environment } from '../../../../environments/environment';
 import { CampaignDetails } from '@sm-campaigns-app/datatypes';
 import { CampaignStore } from './campaign-store';
 import { catchError, Observable, throwError } from 'rxjs';
+import { CampaignForm } from '../campaign.model';
 
 @Injectable({
   providedIn: 'root',
@@ -34,6 +35,23 @@ export class CampaignApi {
   deleteCampaign(id: string): Observable<string> {
     return this.http
       .delete<string>(`${environment.apiUrl}/campaigns/${id}`)
+      .pipe(
+        catchError((error: HttpErrorResponse) => {
+          console.error('Service error', error);
+          return throwError(() => error);
+        }),
+      );
+  }
+
+  saveEditedCampaign(
+    id: string,
+    formValues: CampaignForm,
+  ): Observable<CampaignDetails> {
+    return this.http
+      .patch<CampaignDetails>(
+        `${environment.apiUrl}/campaigns/${id}`,
+        formValues,
+      )
       .pipe(
         catchError((error: HttpErrorResponse) => {
           console.error('Service error', error);

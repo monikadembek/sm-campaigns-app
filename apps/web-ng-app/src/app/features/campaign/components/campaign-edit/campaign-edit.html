@@ -1,0 +1,92 @@
+<div class="edit-campaign">
+  <form [formGroup]="campaignForm" (ngSubmit)="saveCampaignChanges()">
+    <div class="mb-3">
+      <label for="name" class="edit-campaign__label">Name:</label>
+      <input type="text" id="name" pInputText formControlName="name" />
+      @if(name?.invalid && (name?.touched || name?.dirty)) {
+      @if(name?.hasError('required')) {
+      <p class="form-error">Name is required</p>
+      } @if(name?.hasError('maxLength')) {
+      <p class="form-error">Name can't be longer than 255 characters</p>
+      } }
+    </div>
+    <div class="mb-3">
+      <label for="status" class="edit-campaign__label">Status:</label>
+      <p-select
+        [options]="campaignStatusSelectOptions"
+        formControlName="status"
+        name="status"
+        id="status"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select a campaign status"
+        class="w-full"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="goalId" class="edit-campaign__label">Goal:</label>
+      <p-select
+        [options]="campaignGoalSelectOptions"
+        formControlName="goalId"
+        name="goalId"
+        id="goalId"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select a campaign goal"
+        class="w-full"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="startDate" class="edit-campaign__label">Start date</label>
+      <p-datepicker
+        formControlName="startDate"
+        name="startDate"
+        id="startDate"
+        [showIcon]="true"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="endDate" class="edit-campaign__label">End date</label>
+      <p-datepicker
+        formControlName="endDate"
+        [showIcon]="true"
+        name="endDate"
+        id="endDate"
+      />
+      @if(campaignForm.invalid && (campaignForm.touched || campaignForm.dirty))
+      { @if(campaignForm.hasError('endDateBeforeStartDate')) {
+      <p class="form-error">End date must be later than start date</p>
+      } }
+    </div>
+    <div class="mb-3">
+      <label for="audience" class="edit-campaign__label">Audience:</label>
+      <input type="text" id="audience" pInputText formControlName="audience" />
+    </div>
+    <div class="mb-3">
+      <label for="notes" class="edit-campaign__label">Notes:</label>
+      <input type="text" id="notes" pInputText formControlName="notes" />
+      @if(notes?.invalid && (notes?.touched || notes?.dirty)) {
+      @if(notes?.hasError('maxLength')) {
+      <p class="form-error">Name can't be longer than 255 characters</p>
+      } }
+    </div>
+    <div>
+      <p-button
+        label="Cancel"
+        type="button"
+        (onClick)="cancel()"
+        class="mr-4"
+        variant="outlined"
+        size="small"
+        severity="secondary"
+      />
+      <p-button
+        label="Save"
+        type="submit"
+        size="small"
+        [disabled]="campaignForm.invalid || campaignForm.pristine"
+      />
+    </div>
+  </form>
+</div>

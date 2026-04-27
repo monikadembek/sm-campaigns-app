@@ -5,7 +5,8 @@
       "Bash(cd:*)",
       "Bash(npx tsc:*)",
       "Bash(npx nx:*)",
-      "Bash(npx jest:*)"
+      "Bash(npx jest:*)",
+      "Bash(xargs grep *)"
     ]
   }
 }
