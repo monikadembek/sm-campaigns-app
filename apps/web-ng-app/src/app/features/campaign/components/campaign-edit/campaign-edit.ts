@@ -2,9 +2,9 @@ import {
   ChangeDetectionStrategy,
   Component,
   computed,
-  effect,
   inject,
   input,
+  OnInit,
   output,
 } from '@angular/core';
 import {
@@ -35,7 +35,7 @@ import { CampaignForm } from '../../campaign.model';
   styleUrl: './campaign-edit.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CampaignEdit {
+export class CampaignEdit implements OnInit {
   readonly fb = inject(FormBuilder);
 
   campaignData = input.required<CampaignDetails | undefined>();
@@ -87,19 +87,17 @@ export class CampaignEdit {
     return this.campaignForm.get('endDate');
   }
 
-  constructor() {
-    effect(() => {
-      const campaign = this.campaignData();
-      if (!campaign) return;
-      this.campaignForm.setValue({
-        name: campaign.name ?? '',
-        goalId: campaign.goalId,
-        audience: campaign.audience ?? '',
-        startDate: campaign.startDate ? new Date(campaign.startDate) : null,
-        endDate: campaign.endDate ? new Date(campaign.endDate) : null,
-        status: campaign.status ?? 'DRAFT',
-        notes: campaign.notes ?? '',
-      });
+  ngOnInit() {
+    const campaign = this.campaignData();
+    if (!campaign) return;
+    this.campaignForm.setValue({
+      name: campaign.name ?? '',
+      goalId: campaign.goalId,
+      audience: campaign.audience ?? null,
+      startDate: campaign.startDate ? new Date(campaign.startDate) : null,
+      endDate: campaign.endDate ? new Date(campaign.endDate) : null,
+      status: campaign.status ?? 'DRAFT',
+      notes: campaign.notes ?? null,
     });
   }
 

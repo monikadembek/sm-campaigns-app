@@ -13,13 +13,13 @@
   <div class="mb-3">
     <div class="campaign-details__header">Start date</div>
     <div class="campaign-details__value">
-      {{campaignData()?.startDate || 'Not set' }}
+      {{(campaignData()?.startDate | date: 'dd-MM-yyyy') || 'Not set' }}
     </div>
   </div>
   <div class="mb-3">
     <div class="campaign-details__header">End date</div>
     <div class="campaign-details__value">
-      {{campaignData()?.endDate || 'Not set' }}
+      {{(campaignData()?.endDate | date: 'dd-MM-yyyy') || 'Not set' }}
     </div>
   </div>
   <div class="mb-3">

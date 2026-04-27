@@ -43,13 +43,13 @@
   <div class="campaign-container--right">
     <div class="posts__header">
       <h2>Posts ({{campaignDetails.value().posts.length}})</h2>
-      <p-button
+      <!-- <p-button
         label="Add post"
         size="small"
         variant="outlined"
         severity="success"
         (onClick)="addPost()"
-      ></p-button>
+      ></p-button> -->
     </div>
 
     @if (campaignDetails.value().posts.length > 0) {
@@ -74,6 +74,7 @@
         </ng-template>
         <ng-template #footer>
           <div class="post__footer-container">
+            <!-- 
             <p-button
               label="Edit"
               (onClick)="editPost()"
@@ -89,7 +90,7 @@
               size="small"
               severity="success"
             />
-          </div>
+          --></div>
         </ng-template>
         <p class="">{{post.content }}</p>
       </p-panel>

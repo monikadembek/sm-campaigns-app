@@ -20,6 +20,7 @@ import { handleHttpErrorResponseMessage } from '../../core/utils/errors-utils';
 import { CampaignDetailsComponent } from './components/campaign-details/campaign-details';
 import { CampaignEdit } from './components/campaign-edit/campaign-edit';
 import { CampaignForm } from './campaign.model';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-campaign',
@@ -49,12 +50,13 @@ export class Campaign {
   campaignDetails = this.campaignApiService.campaignResource;
   campaignGoals = this.campaignApiService.goals;
 
-  mode = signal<'edit' | 'read'>('read');
+  #mode = signal<'edit' | 'read'>('read');
+  mode = this.#mode.asReadonly();
 
   constructor() {
-    this.route.params.subscribe((params) =>
-      this.campaignStore.setCampaignId(params['id']),
-    );
+    this.route.params
+      .pipe(takeUntilDestroyed())
+      .subscribe((params) => this.campaignStore.setCampaignId(params['id']));
 
     effect(() => {
       const error = this.campaignDetails.error() as
@@ -73,7 +75,7 @@ export class Campaign {
   }
 
   setMode(mode: 'edit' | 'read') {
-    this.mode.set(mode);
+    this.#mode.set(mode);
   }
 
   editCampaign() {
@@ -112,9 +114,9 @@ export class Campaign {
       next: (res) => {
         console.log(res);
         this.messageService.add({
-          severity: 'info',
+          severity: 'success',
           summary: 'Confirmed',
-          detail: `Campaign with id ${id} was deleted`,
+          detail: `Campaign ${campaignName} was deleted`,
         });
         this.router.navigate(['/campaigns']);
       },
@@ -140,7 +142,7 @@ export class Campaign {
           this.messageService.add({
             severity: 'info',
             summary: 'Saved',
-            detail: `Campaign with id ${this.campaignId()} was updated`,
+            detail: `Campaign ${this.campaignDetails.value()?.name} was updated`,
           });
           this.campaignApiService.reloadCampaign();
         },
@@ -156,6 +158,7 @@ export class Campaign {
       });
   }
 
+  // TODO: for future development
   addPost() {
     console.log('add post');
   }
