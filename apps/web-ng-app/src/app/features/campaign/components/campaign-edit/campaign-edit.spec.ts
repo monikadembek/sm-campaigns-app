@@ -79,6 +79,7 @@ describe('CampaignEdit', () => {
     fixture = TestBed.createComponent(CampaignEdit);
     component = fixture.componentInstance;
     fixture.componentRef.setInput('campaignData', campaignData);
+    fixture.componentRef.setInput('goals', mockGoals);
     fixture.detectChanges();
   }
 
@@ -98,12 +99,8 @@ describe('CampaignEdit', () => {
     expect(component.campaignForm.value.endDate).toBeInstanceOf(Date);
   });
 
-  it('should leave the form untouched when setFormValues is called with undefined data', () => {
-    setup();
-    fixture.componentRef.setInput('campaignData', undefined);
-    component.campaignForm.reset();
-
-    component.setFormValues();
+  it('should leave the form untouched when campaignData is undefined', () => {
+    setup(undefined);
 
     expect(component.campaignForm.value.name).toBe('');
     expect(component.campaignForm.value.status).toBe('DRAFT');
@@ -125,7 +122,7 @@ describe('CampaignEdit', () => {
 
   it('should map loaded goals into select options', () => {
     setup();
-    expect(component.campaignGoalSelectOptions).toEqual([
+    expect(component.campaignGoalSelectOptions()).toEqual([
       { label: 'Brand Awareness', value: 1 },
       { label: 'Lead Generation', value: 2 },
     ]);

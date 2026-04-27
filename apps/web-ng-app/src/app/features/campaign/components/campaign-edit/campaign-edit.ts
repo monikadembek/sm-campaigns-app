@@ -1,11 +1,17 @@
-import { httpResource } from '@angular/common/http';
-import { Component, effect, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  effect,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import {
   CampaignDetails,
   CampaignGoal,
   CampaignStatus,
 } from '@sm-campaigns-app/datatypes';
-import { environment } from '../../../../../environments/environment';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { SelectModule } from 'primeng/select';
@@ -27,24 +33,19 @@ import { CampaignForm } from '../../campaign.model';
   ],
   templateUrl: './campaign-edit.html',
   styleUrl: './campaign-edit.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignEdit {
   readonly fb = inject(FormBuilder);
 
   campaignData = input.required<CampaignDetails | undefined>();
+  goals = input.required<CampaignGoal[]>();
   cancelEdit = output<void>();
   saveEditedForm = output<CampaignForm>();
 
-  goals = httpResource<CampaignGoal[]>(
-    () => ({
-      url: `${environment.apiUrl}/campaign-goals`,
-    }),
-    {
-      defaultValue: [],
-    },
+  campaignGoalSelectOptions = computed(() =>
+    this.goals().map((item) => ({ label: item.label, value: item.id })),
   );
-
-  campaignGoalSelectOptions: { label: string; value: number }[] = [];
 
   campaignStatusSelectOptions: { label: string; value: CampaignStatus }[] = [
     { label: 'Draft', value: 'DRAFT' },
@@ -86,38 +87,19 @@ export class CampaignEdit {
     return this.campaignForm.get('endDate');
   }
 
-  private prepareCampaignGoalsSelect(
-    goals: CampaignGoal[],
-  ): { label: string; value: number }[] {
-    return goals.map((item) => {
-      return {
-        label: item.label,
-        value: item.id,
-      };
-    });
-  }
-
   constructor() {
     effect(() => {
-      this.campaignGoalSelectOptions = this.prepareCampaignGoalsSelect(
-        this.goals.value(),
-      );
-      this.setFormValues();
-    });
-  }
-
-  setFormValues(): void {
-    const campaign = this.campaignData();
-    if (!campaign) return;
-    console.log('set form values', campaign);
-    this.campaignForm.setValue({
-      name: campaign.name ?? '',
-      goalId: campaign.goalId,
-      audience: campaign.audience ?? '',
-      startDate: campaign.startDate ? new Date(campaign.startDate) : null,
-      endDate: campaign.endDate ? new Date(campaign.endDate) : null,
-      status: campaign.status ?? '',
-      notes: campaign.notes ?? '',
+      const campaign = this.campaignData();
+      if (!campaign) return;
+      this.campaignForm.setValue({
+        name: campaign.name ?? '',
+        goalId: campaign.goalId,
+        audience: campaign.audience ?? '',
+        startDate: campaign.startDate ? new Date(campaign.startDate) : null,
+        endDate: campaign.endDate ? new Date(campaign.endDate) : null,
+        status: campaign.status ?? 'DRAFT',
+        notes: campaign.notes ?? '',
+      });
     });
   }
 

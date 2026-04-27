@@ -3,14 +3,12 @@ import {
   Component,
   effect,
   inject,
-  Resource,
   signal,
   Signal,
 } from '@angular/core';
 import { CampaignStore } from './services/campaign-store';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { CampaignApi } from './services/campaign-api';
-import { CampaignDetails } from '@sm-campaigns-app/datatypes';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { MessageModule } from 'primeng/message';
@@ -48,7 +46,8 @@ export class Campaign {
   private readonly confirmationService = inject(ConfirmationService);
 
   campaignId: Signal<string> = this.campaignStore.campaignId;
-  campaignDetails!: Resource<CampaignDetails | undefined>;
+  campaignDetails = this.campaignApiService.campaignResource;
+  campaignGoals = this.campaignApiService.goals;
 
   mode = signal<'edit' | 'read'>('read');
 
@@ -58,14 +57,11 @@ export class Campaign {
     );
 
     effect(() => {
-      this.campaignDetails = this.campaignApiService.campaignResource;
-
-      const error = this.campaignApiService.campaignResource.error() as
+      const error = this.campaignDetails.error() as
         | HttpErrorResponse
         | undefined;
 
       if (error && (error.status === 404 || error.status === 400)) {
-        console.log('err', error);
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
@@ -73,10 +69,6 @@ export class Campaign {
         });
         this.router.navigate(['/campaigns']);
       }
-
-      console.log('campaign details: ', this.campaignDetails.value());
-      console.log('error: ', this.campaignDetails.error());
-      console.log('status: ', this.campaignDetails.error()?.message);
     });
   }
 

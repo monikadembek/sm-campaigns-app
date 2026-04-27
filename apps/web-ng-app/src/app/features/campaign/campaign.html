@@ -33,6 +33,7 @@
     } @else {
     <app-campaign-edit
       [campaignData]="campaignDetails.value()"
+      [goals]="campaignGoals.value()"
       (cancelEdit)="setMode('read')"
       (saveEditedForm)="saveCampaignForm($event)"
     ></app-campaign-edit>
