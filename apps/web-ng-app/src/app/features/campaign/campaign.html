@@ -4,28 +4,32 @@
 </div>
 } @else if(campaignDetails.hasValue()) {
 
-<div class="campaign-nav">
+<div class="campaign-nav flex-col md:flex-row items-start md:items-center">
   <div>
     <a routerLink="/campaigns" class="campaign-link">Campaigns</a> /
     {{campaignDetails.value().name }}
   </div>
-  <div>
+  <div class="text-right">
     @if(mode() === 'read') {
     <p-button
       label="Delete campaign"
       (onClick)="confirmDelete($event)"
-      class="mr-4"
       variant="outlined"
       size="small"
       severity="danger"
     />
-    <p-button label="Edit campaign" (onClick)="editCampaign()" size="small" />
+    <p-button
+      label="Edit campaign"
+      (onClick)="editCampaign()"
+      size="small"
+      class="ml-4"
+    />
     }
   </div>
 </div>
 
-<div class="campaign-container">
-  <div class="campaign-container--left">
+<div class="campaign-container flex-col md:flex-row">
+  <div class="campaign-container--left w-full md:w-[260px]">
     @if(mode() === 'read') {
     <app-campaign-details-component
       [campaignData]="campaignDetails.value()"
@@ -68,7 +72,11 @@
                 ></p-tag>
                 <span class="post__type">{{post.postType}}</span>
               </div>
-              <p class="post__content-short">{{post.content }}</p>
+              <p
+                class="post__content-short w-[200px] md:w-[300px] lg:w-[550px] xl:w-[800px]"
+              >
+                {{post.content }}
+              </p>
             </div>
           </div>
         </ng-template>
