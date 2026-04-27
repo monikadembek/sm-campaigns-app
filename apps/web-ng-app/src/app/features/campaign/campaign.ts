@@ -56,6 +56,7 @@ export class Campaign {
     this.route.params.subscribe((params) =>
       this.campaignStore.setCampaignId(params['id']),
     );
+
     effect(() => {
       this.campaignDetails = this.campaignApiService.campaignResource;
 
@@ -106,12 +107,15 @@ export class Campaign {
       },
 
       accept: () => {
-        this.deleteCampaign(this.campaignId());
+        this.deleteCampaign(
+          this.campaignId(),
+          this.campaignDetails.value()?.name as string,
+        );
       },
     });
   }
 
-  deleteCampaign(id: string) {
+  deleteCampaign(id: string, campaignName: string) {
     this.campaignApiService.deleteCampaign(id).subscribe({
       next: (res) => {
         console.log(res);
@@ -128,7 +132,7 @@ export class Campaign {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: `Deleting campaign with id ${id} failed. ${errorText}`,
+          detail: `Deleting campaign ${campaignName} failed.`,
         });
       },
     });
@@ -154,7 +158,7 @@ export class Campaign {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: `Updating campaign with id ${this.campaignId()} failed. ${errorText}`,
+            detail: `Updating campaign ${this.campaignDetails.value()?.name} failed.`,
           });
         },
       });
