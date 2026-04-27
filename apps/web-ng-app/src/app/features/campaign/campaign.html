@@ -1,0 +1,113 @@
+@if(campaignDetails.error()) {
+<div class="p-5">
+  <p-message severity="error">{{campaignDetails.error()}}</p-message>
+</div>
+} @else if(campaignDetails.hasValue()) {
+
+<div class="campaign-nav flex-col md:flex-row items-start md:items-center">
+  <div>
+    <a routerLink="/campaigns" class="campaign-link">Campaigns</a> /
+    {{campaignDetails.value().name }}
+  </div>
+  <div class="text-right">
+    @if(mode() === 'read') {
+    <p-button
+      label="Delete campaign"
+      (onClick)="confirmDelete($event)"
+      variant="outlined"
+      size="small"
+      severity="danger"
+    />
+    <p-button
+      label="Edit campaign"
+      (onClick)="editCampaign()"
+      size="small"
+      class="ml-4"
+    />
+    }
+  </div>
+</div>
+
+<div class="campaign-container flex-col md:flex-row">
+  <div class="campaign-container--left w-full md:w-[260px]">
+    @if(mode() === 'read') {
+    <app-campaign-details-component
+      [campaignData]="campaignDetails.value()"
+    ></app-campaign-details-component>
+    } @else {
+    <app-campaign-edit
+      [campaignData]="campaignDetails.value()"
+      [goals]="campaignGoals.value()"
+      (cancelEdit)="setMode('read')"
+      (saveEditedForm)="saveCampaignForm($event)"
+    ></app-campaign-edit>
+    }
+  </div>
+
+  <div class="campaign-container--right">
+    <div class="posts__header">
+      <h2>Posts ({{campaignDetails.value().posts.length}})</h2>
+      <!-- <p-button
+        label="Add post"
+        size="small"
+        variant="outlined"
+        severity="success"
+        (onClick)="addPost()"
+      ></p-button> -->
+    </div>
+
+    @if (campaignDetails.value().posts.length > 0) {
+    <div class="posts-container">
+      @for(post of campaignDetails.value().posts; track post.id) {
+      <p-panel [toggleable]="true" class="mb-4">
+        <ng-template #header>
+          <div class="post__header-container">
+            <p class="post__number">{{$index+1}}</p>
+            <div class="">
+              <div class="post__header">
+                <span class="post__platform">{{post.platform}}</span>
+                <p-tag
+                  [value]="post.status.toUpperCase()"
+                  severity="secondary"
+                ></p-tag>
+                <span class="post__type">{{post.postType}}</span>
+              </div>
+              <p
+                class="post__content-short w-[200px] md:w-[300px] lg:w-[550px] xl:w-[800px]"
+              >
+                {{post.content }}
+              </p>
+            </div>
+          </div>
+        </ng-template>
+        <ng-template #footer>
+          <div class="post__footer-container">
+            <!-- 
+            <p-button
+              label="Edit"
+              (onClick)="editPost()"
+              class="mr-2"
+              size="small"
+              severity="success"
+            />
+            <p-button
+              label="Schedule"
+              (onClick)="schedulePost()"
+              class="mr-4"
+              variant="outlined"
+              size="small"
+              severity="success"
+            />
+          --></div>
+        </ng-template>
+        <p class="">{{post.content }}</p>
+      </p-panel>
+      }
+    </div>
+    } @else {
+    <p>No posts are currently added to the campaign</p>
+    }
+  </div>
+</div>
+}
+<p-confirmdialog />

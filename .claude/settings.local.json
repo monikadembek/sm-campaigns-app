@@ -4,7 +4,11 @@
       "Bash(ls:*)",
       "Bash(cd:*)",
       "Bash(npx tsc:*)",
-      "Bash(npx nx:*)"
+      "Bash(npx nx:*)",
+      "Bash(npx jest:*)",
+      "Bash(xargs grep *)",
+      "Bash(npx vitest *)",
+      "Bash(git stash *)"
     ]
   }
 }

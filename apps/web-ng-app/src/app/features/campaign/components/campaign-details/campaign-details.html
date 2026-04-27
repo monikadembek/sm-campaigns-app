@@ -1,0 +1,37 @@
+<div class="campaign-details">
+  <div class="campaign-details__title-container">
+    <h1 class="campaign-details__title">{{campaignData()?.name }}</h1>
+    <p-tag
+      [value]="campaignData()?.status?.toUpperCase()"
+      severity="secondary"
+    ></p-tag>
+  </div>
+  <div class="mb-3">
+    <div class="campaign-details__header">Goal</div>
+    <div class="campaign-details__value">{{campaignData()?.goal?.label }}</div>
+  </div>
+  <div class="mb-3">
+    <div class="campaign-details__header">Start date</div>
+    <div class="campaign-details__value">
+      {{(campaignData()?.startDate | date: 'dd-MM-yyyy') || 'Not set' }}
+    </div>
+  </div>
+  <div class="mb-3">
+    <div class="campaign-details__header">End date</div>
+    <div class="campaign-details__value">
+      {{(campaignData()?.endDate | date: 'dd-MM-yyyy') || 'Not set' }}
+    </div>
+  </div>
+  <div class="mb-3">
+    <div class="campaign-details__header">Audience</div>
+    <div class="campaign-details__value">
+      {{campaignData()?.audience || 'Not defined' }}
+    </div>
+  </div>
+  <div class="mb-3">
+    <div class="campaign-details__header">Notes</div>
+    <div class="campaign-details__value">
+      {{campaignData()?.notes || 'No notes added' }}
+    </div>
+  </div>
+</div>

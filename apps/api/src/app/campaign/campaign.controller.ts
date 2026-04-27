@@ -1,5 +1,4 @@
 import {
-  BadRequestException,
   Body,
   Controller,
   Delete,
@@ -10,14 +9,21 @@ import {
   NotFoundException,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
 import { AuthGuard } from '../auth/auth.guard';
 import { CampaignService } from './campaign.service';
 import { CurrentUser } from '../shared/current-user.decorator';
-import { Campaign, CampaignSummary } from '@sm-campaigns-app/datatypes';
+import {
+  Campaign,
+  CampaignDetails,
+  CampaignSummary,
+} from '@sm-campaigns-app/datatypes';
 import { CreateCampaignDto } from './dto/create-campaign.dto';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
+import { Prisma } from '../../generated/prisma/client';
 
 @UseGuards(AuthGuard)
 @Controller('campaigns')
@@ -56,7 +62,7 @@ export class CampaignController {
   async getSingleCampaign(
     @Param('id', ParseUUIDPipe) id: string,
     @CurrentUser('id') userId: string,
-  ): Promise<Campaign | null> {
+  ): Promise<CampaignDetails | null> {
     try {
       const campaign = await this.campaignService.getCampaign(id, userId);
       if (!campaign) {
@@ -86,23 +92,55 @@ export class CampaignController {
     }
   }
 
+  @Patch(':id')
+  async editCampaign(
+    @CurrentUser('id') userId: string,
+    @Param('id', ParseUUIDPipe) id: string,
+    @Body() updateCampaignDto: UpdateCampaignDto,
+  ): Promise<CampaignDetails> {
+    try {
+      return await this.campaignService.updateCampaign(
+        userId,
+        id,
+        updateCampaignDto,
+      );
+    } catch (error) {
+      this.logger.error(`Error updating campaign with id ${id}: `, error);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(`Campaign with id: ${id} not found`);
+      }
+      if (error instanceof HttpException) throw error;
+      throw new InternalServerErrorException(
+        `Failed updating campaign with id ${id}`,
+      );
+    }
+  }
+
   @Delete(':id')
   async deleteCampaign(
     @CurrentUser('id') userId: string,
     @Param('id', ParseUUIDPipe) id: string,
   ): Promise<string> {
     try {
-      if (!id) {
-        throw new BadRequestException('Invalid campaign id provided');
-      }
       await this.campaignService.deleteCampaign(id, userId);
       return `Campaign with id: ${id} was successfully deleted`;
     } catch (error) {
-      this.logger.error('Error when deleting campaing: ', error);
+      this.logger.error(`Error when deleting campaign with id ${id}: `, error);
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(`Campaign with id: ${id} not found`);
+      }
       if (error instanceof HttpException) {
         throw error;
       }
-      throw new InternalServerErrorException('Failed deleting campaign');
+      throw new InternalServerErrorException(
+        `Failed deleting campaign with id ${id}`,
+      );
     }
   }
 }

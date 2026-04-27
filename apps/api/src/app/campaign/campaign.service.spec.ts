@@ -9,6 +9,7 @@ describe('CampaignService', () => {
       findMany: jest.Mock;
       findUnique: jest.Mock;
       create: jest.Mock;
+      update: jest.Mock;
       delete: jest.Mock;
     };
   };
@@ -19,6 +20,7 @@ describe('CampaignService', () => {
         findMany: jest.fn(),
         findUnique: jest.fn(),
         create: jest.fn(),
+        update: jest.fn(),
         delete: jest.fn(),
       },
     };
@@ -202,6 +204,122 @@ describe('CampaignService', () => {
         },
         include: expect.any(Object),
       });
+    });
+  });
+
+  describe('updateCampaign', () => {
+    const campaignDetailsInclude = {
+      goal: true,
+      posts: {
+        include: {
+          postMedia: {
+            include: {
+              media: true,
+            },
+          },
+        },
+      },
+    };
+
+    const mockUpdatedCampaign = {
+      id: 'campaign-1',
+      userId: 'user-123',
+      goalId: 1,
+      name: 'Updated Campaign',
+      audience: null,
+      startDate: null,
+      endDate: null,
+      timezone: 'UTC',
+      status: 'DRAFT',
+      notes: null,
+      createdAt: new Date('2026-01-01'),
+      updatedAt: new Date('2026-04-13'),
+      goal: { id: 1, slug: 'awareness', label: 'Brand Awareness', sortOrder: 1 },
+      posts: [],
+    };
+
+    it('should update campaign name', async () => {
+      prisma.campaign.update.mockResolvedValue(mockUpdatedCampaign);
+
+      const result = await service.updateCampaign('user-123', 'campaign-1', { name: 'Updated Campaign' });
+
+      expect(result).toEqual(mockUpdatedCampaign);
+      expect(prisma.campaign.update).toHaveBeenCalledWith({
+        where: { id: 'campaign-1', userId: 'user-123' },
+        data: { name: 'Updated Campaign' },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should update multiple fields at once', async () => {
+      const updated = { ...mockUpdatedCampaign, audience: 'developers', status: 'ACTIVE' };
+      prisma.campaign.update.mockResolvedValue(updated);
+
+      const result = await service.updateCampaign('user-123', 'campaign-1', {
+        name: 'Updated Campaign',
+        audience: 'developers',
+        status: 'ACTIVE',
+      });
+
+      expect(result).toEqual(updated);
+      expect(prisma.campaign.update).toHaveBeenCalledWith({
+        where: { id: 'campaign-1', userId: 'user-123' },
+        data: { name: 'Updated Campaign', audience: 'developers', status: 'ACTIVE' },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should convert startDate and endDate strings to Date objects', async () => {
+      prisma.campaign.update.mockResolvedValue(mockUpdatedCampaign);
+
+      await service.updateCampaign('user-123', 'campaign-1', {
+        startDate: new Date('2026-05-01'),
+        endDate: new Date('2026-06-01'),
+      });
+
+      expect(prisma.campaign.update).toHaveBeenCalledWith({
+        where: { id: 'campaign-1', userId: 'user-123' },
+        data: {
+          startDate: new Date('2026-05-01'),
+          endDate: new Date('2026-06-01'),
+        },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should allow setting dates to null', async () => {
+      prisma.campaign.update.mockResolvedValue(mockUpdatedCampaign);
+
+      await service.updateCampaign('user-123', 'campaign-1', {
+        startDate: null,
+        endDate: null,
+      });
+
+      expect(prisma.campaign.update).toHaveBeenCalledWith({
+        where: { id: 'campaign-1', userId: 'user-123' },
+        data: { startDate: null, endDate: null },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should not include fields that are not in the dto', async () => {
+      prisma.campaign.update.mockResolvedValue(mockUpdatedCampaign);
+
+      await service.updateCampaign('user-123', 'campaign-1', { notes: 'some notes' });
+
+      expect(prisma.campaign.update).toHaveBeenCalledWith({
+        where: { id: 'campaign-1', userId: 'user-123' },
+        data: { notes: 'some notes' },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should propagate error when campaign is not found', async () => {
+      prisma.campaign.update.mockRejectedValue(new Error('Record not found'));
+
+      await expect(
+        service.updateCampaign('user-123', 'nonexistent-id', { name: 'Test' }),
+      ).rejects.toThrow('Record not found');
     });
   });
 

@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { DatabaseModule } from './database/database.module';
 import { AiContentModule } from './ai-content/ai-content.module';
 import { CampaignModule } from './campaign/campaign.module';
+import { CampaignGoalsModule } from './campaign-goals/campaign-goals.module';
 
 @Module({
   imports: [
@@ -37,6 +38,7 @@ import { CampaignModule } from './campaign/campaign.module';
     DatabaseModule,
     AiContentModule,
     CampaignModule,
+    CampaignGoalsModule,
   ],
   controllers: [AppController],
   providers: [

@@ -10,7 +10,7 @@ import {
 } from '@angular/platform-browser';
 import { providePrimeNG } from 'primeng/config';
 import Aura from '@primeuix/themes/aura';
-import { MessageService } from 'primeng/api';
+import { ConfirmationService, MessageService } from 'primeng/api';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { authInterceptor } from './core/auth/interceptors/auth-interceptor';
 import { loadingInterceptor } from './core/interceptors/loading-interceptor';
@@ -23,6 +23,7 @@ export const appConfig: ApplicationConfig = {
       },
     }),
     MessageService,
+    ConfirmationService,
     provideClientHydration(withEventReplay()),
     provideBrowserGlobalErrorListeners(),
     provideHttpClient(withInterceptors([authInterceptor, loadingInterceptor])),

@@ -2,13 +2,28 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../database/prisma.service';
 import {
   Campaign,
+  CampaignDetails,
   CampaignSummary,
   CreateCampaignRequest,
 } from '@sm-campaigns-app/datatypes';
+import { UpdateCampaignDto } from './dto/update-campaign.dto';
 
 @Injectable()
 export class CampaignService {
   constructor(private prisma: PrismaService) {}
+
+  private campaignDetailsInclude = {
+    goal: true,
+    posts: {
+      include: {
+        postMedia: {
+          include: {
+            media: true,
+          },
+        },
+      },
+    },
+  };
 
   async getCampaigns(userId: string): Promise<CampaignSummary[]> {
     const campaigns = await this.prisma.campaign.findMany({
@@ -37,24 +52,16 @@ export class CampaignService {
     return campaigns;
   }
 
-  async getCampaign(id: string, userId: string): Promise<Campaign | null> {
+  async getCampaign(
+    id: string,
+    userId: string,
+  ): Promise<CampaignDetails | null> {
     const campaign = await this.prisma.campaign.findUnique({
       where: {
         id,
         userId,
       },
-      include: {
-        goal: true,
-        posts: {
-          include: {
-            postMedia: {
-              include: {
-                media: true,
-              },
-            },
-          },
-        },
-      },
+      include: this.campaignDetailsInclude,
     });
     return campaign;
   }
@@ -72,6 +79,38 @@ export class CampaignService {
       select: { id: true, name: true, status: true },
     });
     return campaign;
+  }
+
+  async updateCampaign(
+    userId: string,
+    campaignId: string,
+    data: UpdateCampaignDto,
+  ): Promise<CampaignDetails> {
+    const updateData: Record<string, unknown> = {};
+
+    if ('name' in data) updateData.name = data.name;
+    if ('goalId' in data) updateData.goalId = data.goalId;
+    if ('audience' in data) updateData.audience = data.audience;
+    if ('status' in data) updateData.status = data.status;
+    if ('notes' in data) updateData.notes = data.notes;
+
+    if ('startDate' in data) {
+      updateData.startDate =
+        data.startDate == null ? null : new Date(data.startDate);
+    }
+    if ('endDate' in data) {
+      updateData.endDate = data.endDate == null ? null : new Date(data.endDate);
+    }
+
+    const updatedCampaign = await this.prisma.campaign.update({
+      where: {
+        id: campaignId,
+        userId,
+      },
+      data: updateData,
+      include: this.campaignDetailsInclude,
+    });
+    return updatedCampaign;
   }
 
   async deleteCampaign(id: string, userId: string) {
