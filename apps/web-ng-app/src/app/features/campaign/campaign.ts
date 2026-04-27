@@ -132,7 +132,7 @@ export class Campaign {
         this.messageService.add({
           severity: 'error',
           summary: 'Error',
-          detail: `Deleting campaign ${campaignName} failed.`,
+          detail: `Deleting campaign ${campaignName} failed. ${errorText}`,
         });
       },
     });
@@ -158,7 +158,7 @@ export class Campaign {
           this.messageService.add({
             severity: 'error',
             summary: 'Error',
-            detail: `Updating campaign ${this.campaignDetails.value()?.name} failed.`,
+            detail: `Updating campaign ${this.campaignDetails.value()?.name} failed. ${errorText}`,
           });
         },
       });
