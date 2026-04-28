@@ -14,17 +14,21 @@ describe('CampaignController', () => {
   let controller: CampaignController;
   let service: {
     getCampaigns: jest.Mock;
+    getCampaignsFull: jest.Mock;
     getCampaign: jest.Mock;
     createCampaign: jest.Mock;
     updateCampaign: jest.Mock;
+    deleteCampaign: jest.Mock;
   };
 
   beforeEach(async () => {
     service = {
       getCampaigns: jest.fn(),
+      getCampaignsFull: jest.fn(),
       getCampaign: jest.fn(),
       createCampaign: jest.fn(),
       updateCampaign: jest.fn(),
+      deleteCampaign: jest.fn(),
     };
 
     const module: TestingModule = await Test.createTestingModule({
@@ -39,16 +43,52 @@ describe('CampaignController', () => {
     expect(controller).toBeDefined();
   });
 
-  it('should return campaigns for the current user', async () => {
-    const mockCampaigns = [
-      { id: '1', name: 'Campaign 1', status: 'DRAFT' },
-    ];
-    service.getCampaigns.mockResolvedValue(mockCampaigns);
+  describe('getCampaigns', () => {
+    it('should return campaigns for the current user', async () => {
+      const mockCampaigns = [
+        { id: '1', name: 'Campaign 1', status: 'DRAFT' },
+      ];
+      service.getCampaigns.mockResolvedValue(mockCampaigns);
 
-    const result = await controller.getCampaigns('user-123');
+      const result = await controller.getCampaigns('user-123');
 
-    expect(result).toEqual(mockCampaigns);
-    expect(service.getCampaigns).toHaveBeenCalledWith('user-123');
+      expect(result).toEqual(mockCampaigns);
+      expect(service.getCampaigns).toHaveBeenCalledWith('user-123');
+    });
+
+    it('should throw InternalServerErrorException when service throws', async () => {
+      service.getCampaigns.mockRejectedValue(new Error('DB error'));
+
+      await expect(controller.getCampaigns('user-123')).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('getCampaignsFull', () => {
+    it('should return full campaigns with goal and posts for the current user', async () => {
+      const mockCampaigns = [
+        {
+          id: '1',
+          userId: 'user-123',
+          goalId: 1,
+          name: 'Campaign 1',
+          status: 'DRAFT',
+          goal: { id: 1, slug: 'awareness', label: 'Brand Awareness', sortOrder: 1 },
+          posts: [{ id: 'post-1', platform: 'INSTAGRAM', postType: 'IMAGE' }],
+        },
+      ];
+      service.getCampaignsFull.mockResolvedValue(mockCampaigns);
+
+      const result = await controller.getCampaignsFull('user-123');
+
+      expect(result).toEqual(mockCampaigns);
+      expect(service.getCampaignsFull).toHaveBeenCalledWith('user-123');
+    });
+
+    it('should throw InternalServerErrorException when service throws', async () => {
+      service.getCampaignsFull.mockRejectedValue(new Error('DB error'));
+
+      await expect(controller.getCampaignsFull('user-123')).rejects.toThrow(InternalServerErrorException);
+    });
   });
 
   describe('getSingleCampaign', () => {
@@ -85,19 +125,35 @@ describe('CampaignController', () => {
     });
   });
 
-  it('should create a campaign for the current user', async () => {
-    const mockCreated = { id: 'new-id', name: 'New Campaign', status: 'DRAFT' };
-    service.createCampaign.mockResolvedValue(mockCreated);
+  describe('createCampaign', () => {
+    it('should create a campaign for the current user', async () => {
+      const mockCreated = {
+        id: 'new-id',
+        name: 'New Campaign',
+        status: 'DRAFT',
+        goal: { id: 1, slug: 'awareness', label: 'Brand Awareness', sortOrder: 1 },
+        posts: [],
+      };
+      service.createCampaign.mockResolvedValue(mockCreated);
 
-    const result = await controller.createCampaign('user-123', {
-      name: 'New Campaign',
-      goalId: 1,
+      const result = await controller.createCampaign('user-123', {
+        name: 'New Campaign',
+        goalId: 1,
+      });
+
+      expect(result).toEqual(mockCreated);
+      expect(service.createCampaign).toHaveBeenCalledWith('user-123', {
+        name: 'New Campaign',
+        goalId: 1,
+      });
     });
 
-    expect(result).toEqual(mockCreated);
-    expect(service.createCampaign).toHaveBeenCalledWith('user-123', {
-      name: 'New Campaign',
-      goalId: 1,
+    it('should throw InternalServerErrorException when service throws', async () => {
+      service.createCampaign.mockRejectedValue(new Error('DB error'));
+
+      await expect(
+        controller.createCampaign('user-123', { name: 'New Campaign', goalId: 1 }),
+      ).rejects.toThrow(InternalServerErrorException);
     });
   });
 
@@ -162,6 +218,37 @@ describe('CampaignController', () => {
 
       await expect(
         controller.editCampaign('user-123', 'campaign-1', { name: 'Test' }),
+      ).rejects.toThrow(InternalServerErrorException);
+    });
+  });
+
+  describe('deleteCampaign', () => {
+    it('should delete a campaign and return a success message', async () => {
+      service.deleteCampaign.mockResolvedValue(undefined);
+
+      const result = await controller.deleteCampaign('user-123', 'campaign-1');
+
+      expect(result).toBe('Campaign with id: campaign-1 was successfully deleted');
+      expect(service.deleteCampaign).toHaveBeenCalledWith('campaign-1', 'user-123');
+    });
+
+    it('should throw NotFoundException when campaign does not exist', async () => {
+      const error = new Prisma.PrismaClientKnownRequestError('Record not found', {
+        code: 'P2025',
+        clientVersion: '5.0.0',
+      });
+      service.deleteCampaign.mockRejectedValue(error);
+
+      await expect(
+        controller.deleteCampaign('user-123', 'nonexistent-id'),
+      ).rejects.toThrow(NotFoundException);
+    });
+
+    it('should throw InternalServerErrorException when service throws unexpected error', async () => {
+      service.deleteCampaign.mockRejectedValue(new Error('DB error'));
+
+      await expect(
+        controller.deleteCampaign('user-123', 'campaign-1'),
       ).rejects.toThrow(InternalServerErrorException);
     });
   });

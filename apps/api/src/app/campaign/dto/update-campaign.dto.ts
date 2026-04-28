@@ -9,14 +9,7 @@ import {
   MaxLength,
   ValidateIf,
 } from 'class-validator';
-
-const CAMPAIGN_STATUS: CampaignStatus[] = [
-  'DRAFT',
-  'ACTIVE',
-  'PAUSED',
-  'COMPLETED',
-  'ARCHIVED',
-];
+import { CAMPAIGN_STATUS } from '../campaign.constants';
 
 export class UpdateCampaignDto {
   @IsOptional()

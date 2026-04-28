@@ -82,7 +82,7 @@ export class CampaignController {
   async createCampaign(
     @CurrentUser('id') userId: string,
     @Body() dto: CreateCampaignDto,
-  ): Promise<CampaignSummary> {
+  ): Promise<CampaignDetails> {
     try {
       return await this.campaignService.createCampaign(userId, dto);
     } catch (error) {

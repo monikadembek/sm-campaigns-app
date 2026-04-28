@@ -56,23 +56,122 @@ describe('CampaignService', () => {
     });
   });
 
-  it('should create a campaign and return summary', async () => {
-    const mockCreated = { id: 'new-id', name: 'New Campaign', status: 'DRAFT' };
-    prisma.campaign.create.mockResolvedValue(mockCreated);
+  describe('createCampaign', () => {
+    const campaignDetailsInclude = {
+      goal: true,
+      posts: {
+        include: {
+          postMedia: {
+            include: {
+              media: true,
+            },
+          },
+        },
+      },
+    };
 
-    const result = await service.createCampaign('user-123', {
-      name: 'New Campaign',
-      goalId: 1,
-    });
+    it('should create a campaign with required fields and return campaign details', async () => {
+      const mockCreated = {
+        id: 'new-id',
+        name: 'New Campaign',
+        status: 'DRAFT',
+        goal: { id: 1, slug: 'awareness', label: 'Brand Awareness', sortOrder: 1 },
+        posts: [],
+      };
+      prisma.campaign.create.mockResolvedValue(mockCreated);
 
-    expect(result).toEqual(mockCreated);
-    expect(prisma.campaign.create).toHaveBeenCalledWith({
-      data: {
+      const result = await service.createCampaign('user-123', {
         name: 'New Campaign',
         goalId: 1,
-        userId: 'user-123',
-      },
-      select: { id: true, name: true, status: true },
+      });
+
+      expect(result).toEqual(mockCreated);
+      expect(prisma.campaign.create).toHaveBeenCalledWith({
+        data: {
+          name: 'New Campaign',
+          goalId: 1,
+          userId: 'user-123',
+        },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should create a campaign with optional fields', async () => {
+      const mockCreated = {
+        id: 'new-id',
+        name: 'New Campaign',
+        status: 'ACTIVE',
+        audience: 'developers',
+        notes: 'some notes',
+        goal: { id: 1, slug: 'awareness', label: 'Brand Awareness', sortOrder: 1 },
+        posts: [],
+      };
+      prisma.campaign.create.mockResolvedValue(mockCreated);
+
+      const result = await service.createCampaign('user-123', {
+        name: 'New Campaign',
+        goalId: 1,
+        audience: 'developers',
+        status: 'ACTIVE',
+        notes: 'some notes',
+      });
+
+      expect(result).toEqual(mockCreated);
+      expect(prisma.campaign.create).toHaveBeenCalledWith({
+        data: {
+          name: 'New Campaign',
+          goalId: 1,
+          userId: 'user-123',
+          audience: 'developers',
+          status: 'ACTIVE',
+          notes: 'some notes',
+        },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should convert startDate and endDate strings to Date objects', async () => {
+      prisma.campaign.create.mockResolvedValue({ id: 'new-id', name: 'New Campaign', status: 'DRAFT', goal: null, posts: [] });
+
+      await service.createCampaign('user-123', {
+        name: 'New Campaign',
+        goalId: 1,
+        startDate: '2026-05-01',
+        endDate: '2026-06-01',
+      });
+
+      expect(prisma.campaign.create).toHaveBeenCalledWith({
+        data: {
+          name: 'New Campaign',
+          goalId: 1,
+          userId: 'user-123',
+          startDate: new Date('2026-05-01'),
+          endDate: new Date('2026-06-01'),
+        },
+        include: campaignDetailsInclude,
+      });
+    });
+
+    it('should allow setting dates to null', async () => {
+      prisma.campaign.create.mockResolvedValue({ id: 'new-id', name: 'New Campaign', status: 'DRAFT', goal: null, posts: [] });
+
+      await service.createCampaign('user-123', {
+        name: 'New Campaign',
+        goalId: 1,
+        startDate: null,
+        endDate: null,
+      });
+
+      expect(prisma.campaign.create).toHaveBeenCalledWith({
+        data: {
+          name: 'New Campaign',
+          goalId: 1,
+          userId: 'user-123',
+          startDate: null,
+          endDate: null,
+        },
+        include: campaignDetailsInclude,
+      });
     });
   });
 
