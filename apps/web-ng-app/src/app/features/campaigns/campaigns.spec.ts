@@ -67,6 +67,7 @@ describe('Campaigns', () => {
 
     const mockCampaignsApi = {
       campaignsFullData: mockResource,
+      reloadCampaigns: vi.fn(),
     };
 
     TestBed.configureTestingModule({
@@ -110,20 +111,20 @@ describe('Campaigns', () => {
     expect(postTexts).toContain('Posts: 0');
   });
 
-  it('should display start and end dates', () => {
+  it('should display start and end dates formatted as dd-MM-yyyy', () => {
     setup({ value: mockCampaigns, hasValue: true });
 
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Starts: 2026-04-01');
-    expect(el.textContent).toContain('Ends: 2026-04-30');
+    expect(el.textContent).toContain('Starts: 01-04-2026');
+    expect(el.textContent).toContain('Ends: 30-04-2026');
   });
 
-  it('should display n/a for missing dates', () => {
+  it('should display "not set" for missing dates', () => {
     setup({ value: mockCampaigns, hasValue: true });
 
     const el = fixture.nativeElement as HTMLElement;
-    expect(el.textContent).toContain('Starts: n/a');
-    expect(el.textContent).toContain('Ends: n/a');
+    expect(el.textContent).toContain('Starts: not set');
+    expect(el.textContent).toContain('Ends: not set');
   });
 
   it('should display status tags for each campaign', () => {
@@ -137,7 +138,8 @@ describe('Campaigns', () => {
     setup({ value: mockCampaigns, hasValue: true });
 
     const links = fixture.debugElement.queryAll(By.directive(RouterLink));
-    expect(links.length).toBe(2);
+    // 2 campaign cards + 1 "Create New Campaign" button
+    expect(links.length).toBe(3);
   });
 
   it('should display error message when resource has an error', () => {
@@ -160,5 +162,27 @@ describe('Campaigns', () => {
 
     const heading = fixture.debugElement.query(By.css('h1'));
     expect(heading.nativeElement.textContent.trim()).toBe('Campaigns');
+  });
+
+  it('should display "Create New Campaign" button linking to add route', () => {
+    setup();
+
+    const button = fixture.debugElement.query(By.css('p-button[routerLink]'));
+    expect(button).toBeTruthy();
+    expect(button.nativeElement.getAttribute('routerlink')).toBe('add');
+  });
+
+  it('should display empty state message when campaigns list is empty', () => {
+    setup({ value: [], hasValue: true });
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).toContain('Currently you have no campaigns.');
+  });
+
+  it('should not display empty state message when campaigns exist', () => {
+    setup({ value: mockCampaigns, hasValue: true });
+
+    const el = fixture.nativeElement as HTMLElement;
+    expect(el.textContent).not.toContain('Currently you have no campaigns.');
   });
 });
