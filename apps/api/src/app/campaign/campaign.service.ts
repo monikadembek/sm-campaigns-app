@@ -1,4 +1,8 @@
 import { Injectable } from '@nestjs/common';
+import type {
+  CampaignUncheckedCreateInput,
+  CampaignUncheckedUpdateInput,
+} from '../../generated/prisma/models/Campaign.js';
 import { PrismaService } from '../database/prisma.service';
 import {
   Campaign,
@@ -69,14 +73,31 @@ export class CampaignService {
   async createCampaign(
     userId: string,
     data: CreateCampaignRequest,
-  ): Promise<CampaignSummary> {
+  ): Promise<CampaignDetails> {
+    const createData: CampaignUncheckedCreateInput = {
+      name: data.name,
+      goalId: data.goalId,
+      userId,
+    };
+
+    if ('audience' in data) createData.audience = data.audience;
+    if ('status' in data) createData.status = data.status;
+    if ('notes' in data) createData.notes = data.notes;
+
+    if ('startDate' in data) {
+      createData.startDate =
+        data.startDate == null
+          ? null
+          : new Date(data.startDate as string | Date);
+    }
+    if ('endDate' in data) {
+      createData.endDate =
+        data.endDate == null ? null : new Date(data.endDate as string | Date);
+    }
+
     const campaign = await this.prisma.campaign.create({
-      data: {
-        name: data.name,
-        goalId: data.goalId,
-        userId,
-      },
-      select: { id: true, name: true, status: true },
+      data: createData,
+      include: this.campaignDetailsInclude,
     });
     return campaign;
   }
@@ -86,7 +107,7 @@ export class CampaignService {
     campaignId: string,
     data: UpdateCampaignDto,
   ): Promise<CampaignDetails> {
-    const updateData: Record<string, unknown> = {};
+    const updateData: CampaignUncheckedUpdateInput = {};
 
     if ('name' in data) updateData.name = data.name;
     if ('goalId' in data) updateData.goalId = data.goalId;

@@ -21,6 +21,7 @@ import { CampaignDetailsComponent } from './components/campaign-details/campaign
 import { CampaignEdit } from './components/campaign-edit/campaign-edit';
 import { CampaignForm } from './campaign.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { CampaignGoalsApi } from '../../shared/services/campaign-goals-api';
 
 @Component({
   selector: 'app-campaign',
@@ -41,6 +42,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 export class Campaign {
   private readonly campaignStore = inject(CampaignStore);
   private readonly campaignApiService = inject(CampaignApi);
+  private readonly campaignGoalsApiService = inject(CampaignGoalsApi);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly messageService = inject(MessageService);
@@ -48,7 +50,7 @@ export class Campaign {
 
   campaignId: Signal<string> = this.campaignStore.campaignId;
   campaignDetails = this.campaignApiService.campaignResource;
-  campaignGoals = this.campaignApiService.goals;
+  campaignGoals = this.campaignGoalsApiService.goals;
 
   #mode = signal<'edit' | 'read'>('read');
   mode = this.#mode.asReadonly();

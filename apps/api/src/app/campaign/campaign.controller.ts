@@ -82,7 +82,7 @@ export class CampaignController {
   async createCampaign(
     @CurrentUser('id') userId: string,
     @Body() dto: CreateCampaignDto,
-  ): Promise<CampaignSummary> {
+  ): Promise<CampaignDetails> {
     try {
       return await this.campaignService.createCampaign(userId, dto);
     } catch (error) {
@@ -123,10 +123,10 @@ export class CampaignController {
   async deleteCampaign(
     @CurrentUser('id') userId: string,
     @Param('id', ParseUUIDPipe) id: string,
-  ): Promise<string> {
+  ): Promise<{ message: string }> {
     try {
       await this.campaignService.deleteCampaign(id, userId);
-      return `Campaign with id: ${id} was successfully deleted`;
+      return { message: `Campaign with id: ${id} was successfully deleted` };
     } catch (error) {
       this.logger.error(`Error when deleting campaign with id ${id}: `, error);
       if (

@@ -8,7 +8,9 @@
       "Bash(npx jest:*)",
       "Bash(xargs grep *)",
       "Bash(npx vitest *)",
-      "Bash(git stash *)"
+      "Bash(git stash *)",
+      "Bash(grep -E \"\\\\.\\(ts|html\\)$\")",
+      "Bash(echo \"Exit: $?\")"
     ]
   }
 }

@@ -10,10 +10,20 @@ import { TagModule } from 'primeng/tag';
 import { CampaignsApi } from './services/campaigns-api';
 import { RouterLink } from '@angular/router';
 import { MessageModule } from 'primeng/message';
+import { ButtonModule } from 'primeng/button';
+import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'app-campaigns',
-  imports: [DataViewModule, CardModule, TagModule, MessageModule, RouterLink],
+  imports: [
+    DataViewModule,
+    CardModule,
+    TagModule,
+    ButtonModule,
+    MessageModule,
+    RouterLink,
+    DatePipe,
+  ],
   templateUrl: './campaigns.html',
   styleUrl: './campaigns.css',
   changeDetection: ChangeDetectionStrategy.OnPush,

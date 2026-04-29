@@ -5,7 +5,7 @@ import {
 } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../../../../environments/environment';
-import { CampaignDetails, CampaignGoal } from '@sm-campaigns-app/datatypes';
+import { CampaignDetails } from '@sm-campaigns-app/datatypes';
 import { CampaignStore } from './campaign-store';
 import { catchError, Observable, throwError } from 'rxjs';
 import { CampaignForm } from '../campaign.model';
@@ -28,24 +28,13 @@ export class CampaignApi {
 
   campaignResource = this.#campaignResource.asReadonly();
 
-  #goals = httpResource<CampaignGoal[]>(
-    () => ({
-      url: `${environment.apiUrl}/campaign-goals`,
-    }),
-    {
-      defaultValue: [],
-    },
-  );
-
-  goals = this.#goals.asReadonly();
-
   reloadCampaign(): void {
     this.#campaignResource.reload();
   }
 
-  deleteCampaign(id: string): Observable<string> {
+  deleteCampaign(id: string): Observable<{ message: string }> {
     return this.http
-      .delete<string>(`${environment.apiUrl}/campaigns/${id}`)
+      .delete<{ message: string }>(`${environment.apiUrl}/campaigns/${id}`)
       .pipe(
         catchError((error: HttpErrorResponse) => {
           console.error('Service error', error);

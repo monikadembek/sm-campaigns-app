@@ -1,6 +1,18 @@
 <div class="container">
-  <h1 class="text-2xl font-semibold text-center mb-10">Campaigns</h1>
-  @if(campaignsResource.hasValue()) {
+  <div
+    class="flex flex-col md:flex-row justify-center md:justify-between items-center gap-4 mb-10"
+  >
+    <h1 class="text-2xl font-semibold">Campaigns</h1>
+    <p-button
+      label="Create New Campaign"
+      type="button"
+      routerLink="add"
+      size="small"
+    />
+  </div>
+
+  @if(campaignsResource.hasValue()) { @if (campaignsResource.value().length > 0)
+  {
   <div class="card">
     <p-dataview #dv [value]="campaignsResource.value()">
       <ng-template #list let-items>
@@ -15,8 +27,9 @@
                 <p>Posts: {{item.posts.length}}</p>
                 <p>
                   <span class="inline-block mr-4"
-                    >Starts: {{item.startDate ?? 'n/a'}}</span
-                  >Ends: {{item.endDate ?? 'n/a'}}
+                    >Starts: {{(item.startDate | date: 'dd-MM-yyyy') ?? 'not
+                    set'}}</span
+                  >Ends: {{(item.endDate | date: 'dd-MM-yyyy') ?? 'not set'}}
                 </p>
                 <p-tag severity="success" [value]="item.status" />
               </div>
@@ -27,7 +40,11 @@
       </ng-template>
     </p-dataview>
   </div>
-  } @if(campaignsResource.error()) {
+  } @else {
+  <p class="text-center mt-20">
+    Currently you have no campaigns. <br />Create new campaign.
+  </p>
+  }} @if(campaignsResource.error()) {
   <p-message severity="error">{{campaignsResource.error()}}</p-message>
   }
 </div>
