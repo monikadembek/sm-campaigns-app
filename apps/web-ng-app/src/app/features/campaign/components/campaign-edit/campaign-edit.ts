@@ -20,6 +20,7 @@ import { ReactiveFormsModule, FormBuilder, Validators } from '@angular/forms';
 import { DatePickerModule } from 'primeng/datepicker';
 import { endDateValidator } from './end-date-validator.directive';
 import { CampaignForm } from '../../campaign.model';
+import { TextareaModule } from 'primeng/textarea';
 
 @Component({
   selector: 'app-campaign-edit',
@@ -29,6 +30,7 @@ import { CampaignForm } from '../../campaign.model';
     InputTextModule,
     SelectModule,
     DatePickerModule,
+    TextareaModule,
     ReactiveFormsModule,
   ],
   templateUrl: './campaign-edit.html',
@@ -61,14 +63,19 @@ export class CampaignEdit implements OnInit {
         Validators.required,
         Validators.maxLength(255),
       ]),
-      goalId: this.fb.control(0, [Validators.required]),
-      audience: this.fb.control<string | null>(null),
+      goalId: this.fb.control<number | null>(null, [Validators.required]),
+      audience: this.fb.control<string | null>(null, [
+        Validators.maxLength(255),
+      ]),
       startDate: this.fb.control<Date | null>(null),
       endDate: this.fb.control<Date | null>(null),
       status: this.fb.nonNullable.control<CampaignStatus>('DRAFT', [
         Validators.required,
       ]),
-      notes: this.fb.control<string | null>('', [Validators.maxLength(255)]),
+      notes: this.fb.control<string | null>('', [
+        Validators.maxLength(255),
+        Validators.maxLength(1000),
+      ]),
     },
     {
       validators: endDateValidator,
@@ -87,12 +94,16 @@ export class CampaignEdit implements OnInit {
     return this.campaignForm.get('endDate');
   }
 
+  get audience() {
+    return this.campaignForm.get('audience');
+  }
+
   ngOnInit() {
     const campaign = this.campaignData();
     if (!campaign) return;
     this.campaignForm.setValue({
       name: campaign.name ?? '',
-      goalId: campaign.goalId,
+      goalId: campaign.goalId ?? null,
       audience: campaign.audience ?? null,
       startDate: campaign.startDate ? new Date(campaign.startDate) : null,
       endDate: campaign.endDate ? new Date(campaign.endDate) : null,

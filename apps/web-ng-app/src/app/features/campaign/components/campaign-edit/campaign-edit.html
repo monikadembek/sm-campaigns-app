@@ -62,10 +62,20 @@
     <div class="mb-3">
       <label for="audience" class="edit-campaign__label">Audience:</label>
       <input type="text" id="audience" pInputText formControlName="audience" />
+      @if(audience?.invalid && (audience?.touched || audience?.dirty)) {
+      @if(audience?.hasError('maxLength')) {
+      <p class="form-error">Audience can't be longer than 255 characters</p>
+      } }
     </div>
     <div class="mb-3">
       <label for="notes" class="edit-campaign__label">Notes:</label>
-      <input type="text" id="notes" pInputText formControlName="notes" />
+      <textarea
+        pTextarea
+        id="notes"
+        rows="5"
+        formControlName="notes"
+        class="w-full"
+      ></textarea>
       @if(notes?.invalid && (notes?.touched || notes?.dirty)) {
       @if(notes?.hasError('maxLength')) {
       <p class="form-error">Name can't be longer than 255 characters</p>
