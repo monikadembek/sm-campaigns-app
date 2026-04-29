@@ -34,12 +34,13 @@ export class CampaignCreate implements CanDeactivateComponent {
   campaignGoals = this.campaignGoalsApiService.goals;
 
   createFormComponent = viewChild.required(CampaignCreateForm);
+  private submitted = false;
   isFormDirty = computed(() => {
     return this.createFormComponent().campaignForm.dirty;
   });
 
   canDeactivate(): boolean | Observable<boolean> {
-    if (!this.isFormDirty()) {
+    if (this.submitted || !this.isFormDirty()) {
       return true;
     }
 
@@ -75,6 +76,7 @@ export class CampaignCreate implements CanDeactivateComponent {
   saveNewCampaign(form: CreateCampaignRequest) {
     this.createCampaignApiService.createCampaign(form).subscribe({
       next: (resp) => {
+        this.submitted = true;
         this.messageService.add({
           severity: 'success',
           summary: 'Confirmed',
