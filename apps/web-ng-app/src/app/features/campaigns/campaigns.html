@@ -1,6 +1,8 @@
 <div class="container">
-  <div class="flex justify-between">
-    <h1 class="text-2xl font-semibold text-center mb-10">Campaigns</h1>
+  <div
+    class="flex flex-col md:flex-row justify-center md:justify-between items-center gap-4 mb-10"
+  >
+    <h1 class="text-2xl font-semibold">Campaigns</h1>
     <p-button
       label="Create New Campaign"
       type="button"
@@ -9,7 +11,8 @@
     />
   </div>
 
-  @if(campaignsResource.hasValue()) {
+  @if(campaignsResource.hasValue()) { @if (campaignsResource.value().length > 0)
+  {
   <div class="card">
     <p-dataview #dv [value]="campaignsResource.value()">
       <ng-template #list let-items>
@@ -37,7 +40,11 @@
       </ng-template>
     </p-dataview>
   </div>
-  } @if(campaignsResource.error()) {
+  } @else {
+  <p class="text-center mt-20">
+    Currently you have no campaigns. <br />Create new campaign.
+  </p>
+  }} @if(campaignsResource.error()) {
   <p-message severity="error">{{campaignsResource.error()}}</p-message>
   }
 </div>
