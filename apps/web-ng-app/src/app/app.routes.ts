@@ -16,6 +16,14 @@ export const appRoutes: Route[] = [
     canActivate: [authGuard],
   },
   {
+    path: 'campaigns/add',
+    loadComponent: () =>
+      import('./features/campaign-create/campaign-create').then(
+        (c) => c.CampaignCreate,
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'campaigns/:id',
     loadComponent: () =>
       import('./features/campaign/campaign').then((c) => c.Campaign),

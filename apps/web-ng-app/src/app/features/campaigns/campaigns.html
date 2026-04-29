@@ -1,5 +1,14 @@
 <div class="container">
-  <h1 class="text-2xl font-semibold text-center mb-10">Campaigns</h1>
+  <div class="flex justify-between">
+    <h1 class="text-2xl font-semibold text-center mb-10">Campaigns</h1>
+    <p-button
+      label="Create New Campaign"
+      type="button"
+      routerLink="add"
+      size="small"
+    />
+  </div>
+
   @if(campaignsResource.hasValue()) {
   <div class="card">
     <p-dataview #dv [value]="campaignsResource.value()">
@@ -15,8 +24,9 @@
                 <p>Posts: {{item.posts.length}}</p>
                 <p>
                   <span class="inline-block mr-4"
-                    >Starts: {{item.startDate ?? 'n/a'}}</span
-                  >Ends: {{item.endDate ?? 'n/a'}}
+                    >Starts: {{(item.startDate | date: 'dd-MM-yyyy') ?? 'not
+                    set'}}</span
+                  >Ends: {{(item.endDate | date: 'dd-MM-yyyy') ?? 'not set'}}
                 </p>
                 <p-tag severity="success" [value]="item.status" />
               </div>
