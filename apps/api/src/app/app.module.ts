@@ -11,6 +11,7 @@ import { DatabaseModule } from './database/database.module';
 import { AiContentModule } from './ai-content/ai-content.module';
 import { CampaignModule } from './campaign/campaign.module';
 import { CampaignGoalsModule } from './campaign-goals/campaign-goals.module';
+import { PostModule } from './post/post.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { CampaignGoalsModule } from './campaign-goals/campaign-goals.module';
     AiContentModule,
     CampaignModule,
     CampaignGoalsModule,
+    PostModule,
   ],
   controllers: [AppController],
   providers: [
