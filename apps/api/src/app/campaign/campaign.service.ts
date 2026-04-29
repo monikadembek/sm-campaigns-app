@@ -1,5 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import type { Prisma } from '@prisma/client';
+import type {
+  CampaignUncheckedCreateInput,
+  CampaignUncheckedUpdateInput,
+} from '../../generated/prisma/models/Campaign.js';
 import { PrismaService } from '../database/prisma.service';
 import {
   Campaign,
@@ -71,7 +74,7 @@ export class CampaignService {
     userId: string,
     data: CreateCampaignRequest,
   ): Promise<CampaignDetails> {
-    const createData: Prisma.CampaignUncheckedCreateInput = {
+    const createData: CampaignUncheckedCreateInput = {
       name: data.name,
       goalId: data.goalId,
       userId,
@@ -104,7 +107,7 @@ export class CampaignService {
     campaignId: string,
     data: UpdateCampaignDto,
   ): Promise<CampaignDetails> {
-    const updateData: Prisma.CampaignUncheckedUpdateInput = {};
+    const updateData: CampaignUncheckedUpdateInput = {};
 
     if ('name' in data) updateData.name = data.name;
     if ('goalId' in data) updateData.goalId = data.goalId;
