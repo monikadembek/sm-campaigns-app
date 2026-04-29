@@ -1,4 +1,11 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  input,
+  output,
+} from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import {
   CampaignGoal,
@@ -24,6 +31,7 @@ import { TextareaModule } from 'primeng/textarea';
   ],
   templateUrl: './campaign-create-form.html',
   styleUrl: './campaign-create-form.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignCreateForm {
   readonly fb = inject(FormBuilder);

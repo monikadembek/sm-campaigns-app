@@ -1,6 +1,7 @@
 import { Route } from '@angular/router';
 import { authGuard } from './core/auth/guards/auth-guard';
 import { guestGuard } from './core/auth/guards/guest-guard';
+import { campaignFormCanDeactivateGuard } from './shared/guards/campaign-form-can-deactivate-guard';
 
 export const appRoutes: Route[] = [
   {
@@ -22,6 +23,7 @@ export const appRoutes: Route[] = [
         (c) => c.CampaignCreate,
       ),
     canActivate: [authGuard],
+    canDeactivate: [campaignFormCanDeactivateGuard],
   },
   {
     path: 'campaigns/:id',

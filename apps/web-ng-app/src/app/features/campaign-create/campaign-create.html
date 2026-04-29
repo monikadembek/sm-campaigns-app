@@ -2,7 +2,7 @@
   <h1 class="text-2xl font-semibold text-center mb-10">Create new campaign</h1>
   <app-campaign-create-form
     [goals]="campaignGoals.value()"
-    (cancelEdit)="cancel($event)"
+    (cancelEdit)="cancel()"
     (saveForm)="saveNewCampaign($event)"
   ></app-campaign-create-form>
 </div>
