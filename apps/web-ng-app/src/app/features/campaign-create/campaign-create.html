@@ -5,5 +5,12 @@
     (cancelEdit)="cancel()"
     (saveForm)="saveNewCampaign($event)"
   ></app-campaign-create-form>
+
+  @if (campaignGoals.error()) {
+  <p-message severity="error" size="small">
+    Error occured, issue with getting campaign goals list. Please try again
+    later.
+  </p-message>
+  }
 </div>
 <p-confirm-dialog />

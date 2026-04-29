@@ -34,7 +34,7 @@ import { TextareaModule } from 'primeng/textarea';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CampaignCreateForm {
-  readonly fb = inject(FormBuilder);
+  readonly #fb = inject(FormBuilder);
 
   goals = input.required<CampaignGoal[]>();
   cancelEdit = output<boolean>();
@@ -52,23 +52,22 @@ export class CampaignCreateForm {
     { label: 'Archived', value: 'ARCHIVED' },
   ];
 
-  campaignForm = this.fb.nonNullable.group(
+  campaignForm = this.#fb.nonNullable.group(
     {
-      name: this.fb.nonNullable.control('', [
+      name: this.#fb.nonNullable.control('', [
         Validators.required,
         Validators.maxLength(255),
       ]),
-      goalId: this.fb.control<number | null>(null, [Validators.required]),
-      audience: this.fb.control<string | null>(null, [
+      goalId: this.#fb.control<number | null>(null, [Validators.required]),
+      audience: this.#fb.control<string | null>(null, [
         Validators.maxLength(255),
       ]),
-      startDate: this.fb.control<Date | null>(null),
-      endDate: this.fb.control<Date | null>(null),
-      status: this.fb.nonNullable.control<CampaignStatus>('DRAFT', [
+      startDate: this.#fb.control<Date | null>(null),
+      endDate: this.#fb.control<Date | null>(null),
+      status: this.#fb.nonNullable.control<CampaignStatus>('DRAFT', [
         Validators.required,
-        Validators.maxLength(1000),
       ]),
-      notes: this.fb.control<string | null>('', [Validators.maxLength(255)]),
+      notes: this.#fb.control<string | null>('', [Validators.maxLength(1000)]),
     },
     {
       validators: endDateValidator,

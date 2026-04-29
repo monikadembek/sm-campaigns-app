@@ -107,7 +107,7 @@ export type CampaignSummary = { id: string; name: string; status: string };
 export type CreateCampaignRequest = {
   name: string;
   goalId: number;
-  audience?: string;
+  audience?: string | null;
   status?: CampaignStatus;
   notes?: string;
   startDate?: string | null;

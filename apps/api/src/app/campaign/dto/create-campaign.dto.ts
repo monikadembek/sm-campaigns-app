@@ -1,5 +1,6 @@
 import { CampaignStatus } from '@sm-campaigns-app/datatypes';
 import {
+  IsDateString,
   IsIn,
   IsInt,
   IsNotEmpty,
@@ -28,12 +29,12 @@ export class CreateCampaignDto {
 
   @IsOptional()
   @ValidateIf((o) => o.startDate !== null)
-  @IsString()
+  @IsDateString()
   startDate?: string;
 
   @IsOptional()
   @ValidateIf((o) => o.endDate !== null)
-  @IsString()
+  @IsDateString()
   endDate?: string;
 
   @IsOptional()

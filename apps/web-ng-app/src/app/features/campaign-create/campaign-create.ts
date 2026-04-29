@@ -15,10 +15,11 @@ import { handleHttpErrorResponseMessage } from '../../core/utils/errors-utils';
 import { CampaignGoalsApi } from '../../shared/services/campaign-goals-api';
 import { CanDeactivateComponent } from '../../shared/guards/campaign-form-can-deactivate-guard';
 import { Observable, Subject } from 'rxjs';
+import { MessageModule } from 'primeng/message';
 
 @Component({
   selector: 'app-campaign-create',
-  imports: [CampaignCreateForm, ConfirmDialog],
+  imports: [CampaignCreateForm, ConfirmDialog, MessageModule],
   templateUrl: './campaign-create.html',
   styleUrl: './campaign-create.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -48,10 +49,20 @@ export class CampaignCreate implements CanDeactivateComponent {
       message: 'Do you want to discard unsaved changes and leave form?',
       header: 'Confirm',
       icon: 'pi pi-info-circle',
-      rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
+      rejectButtonProps: {
+        label: 'Cancel',
+        severity: 'secondary',
+        outlined: true,
+      },
       acceptButtonProps: { label: 'Discard', severity: 'danger' },
-      accept: () => { shouldClose$.next(true); shouldClose$.complete(); },
-      reject: () => { shouldClose$.next(false); shouldClose$.complete(); },
+      accept: () => {
+        shouldClose$.next(true);
+        shouldClose$.complete();
+      },
+      reject: () => {
+        shouldClose$.next(false);
+        shouldClose$.complete();
+      },
     });
 
     return shouldClose$.asObservable();
@@ -67,12 +78,12 @@ export class CampaignCreate implements CanDeactivateComponent {
         this.messageService.add({
           severity: 'success',
           summary: 'Confirmed',
-          detail: `New campaign was created`,
+          detail: `Campaign ${resp.name} was created`,
         });
         this.router.navigate(['/campaigns']);
       },
       error: (err) => {
-        console.error('Error when deleting campaign: ', err);
+        console.error('Error when creating campaign: ', err);
         const errorText = handleHttpErrorResponseMessage(err);
         this.messageService.add({
           severity: 'error',
