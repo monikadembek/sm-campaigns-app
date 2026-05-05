@@ -47,13 +47,14 @@
   <div class="campaign-container--right">
     <div class="posts__header">
       <h2>Posts ({{campaignDetails.value().posts.length}})</h2>
-      <!-- <p-button
+      <p-button
         label="Add post"
         size="small"
         variant="outlined"
         severity="success"
-        (onClick)="addPost()"
-      ></p-button> -->
+        [routerLink]="['/campaigns', campaignId(), 'posts', 'add']"
+        [state]="{campaignName: campaignDetails.value().name}"
+      ></p-button>
     </div>
 
     @if (campaignDetails.value().posts.length > 0) {

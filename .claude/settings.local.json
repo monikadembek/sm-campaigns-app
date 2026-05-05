@@ -10,7 +10,12 @@
       "Bash(npx vitest *)",
       "Bash(git stash *)",
       "Bash(grep -E \"\\\\.\\(ts|html\\)$\")",
-      "Bash(echo \"Exit: $?\")"
+      "Bash(echo \"Exit: $?\")",
+      "Bash(Get-Content \"C:\\\\Users\\\\monik\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--IT-Apps-Social-Media-Campaigns-App-sm-campaigns-app\\\\ee25f3b5-f226-402d-bdfb-e3d1fbac1917\\\\tasks\\\\bby4g99jn.output\" -Wait -Tail 50)",
+      "Bash(Select-String -Pattern \"PASS|FAIL|passed|failed|Tests|Error|✓|✗\")",
+      "Bash(Select-Object -First 10)",
+      "Bash(Get-Content \"C:\\\\Users\\\\monik\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--IT-Apps-Social-Media-Campaigns-App-sm-campaigns-app\\\\ee25f3b5-f226-402d-bdfb-e3d1fbac1917\\\\tasks\\\\beiw3n7ca.output\")",
+      "Bash(Select-Object -Last 80)"
     ]
   }
 }

@@ -198,3 +198,14 @@ export type Media = {
 };
 
 export type MediaType = 'IMAGE' | 'VIDEO' | 'GIF' | 'DOCUMENT';
+
+export type CreatePostRequest = {
+  campaignId: string;
+  platform: PlatformType;
+  postType: PostTypeValue;
+  content: string;
+  hashtags?: string[];
+  publishDate?: string | null;
+  scheduledAt?: string | null;
+  status?: PostStatus;
+};

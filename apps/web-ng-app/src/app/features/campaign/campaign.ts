@@ -161,10 +161,6 @@ export class Campaign {
   }
 
   // TODO: for future development
-  addPost() {
-    console.log('add post');
-  }
-
   editPost() {
     console.log('edit post');
   }
