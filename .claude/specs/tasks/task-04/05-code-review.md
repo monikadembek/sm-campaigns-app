@@ -3,7 +3,7 @@
 ## Summary
 
 - **Overall result: PASS WITH ISSUES**
-- The core functionality (new route, form, API service, datatypes update) is implemented and works end-to-end. However, the implementation deviates from the spec and plan in several important ways: the AI-assisted content generation is entirely missing, the route URL uses `post/add` instead of `posts/add`, hashtags are split by space instead of comma, `campaign.ts` still contains the `addPost()` stub, and the unit test suites are nearly empty skeletons. These issues must be fixed before the feature is considered complete.
+- The core "Add post" flow is implemented and functional: the route is correctly registered before `campaigns/:id`, the reactive form covers all required fields, the API service creates posts, and the campaign page "Add post" button is wired up. However, the `PostAiGenerator` component — an explicit in-scope spec requirement — is entirely absent, and the `hashtags` field uses space-splitting instead of the spec-required comma-splitting. Several convention and plan deviations are also noted.
 
 ---
 
@@ -11,89 +11,96 @@
 
 ### Critical (must fix before merge)
 
-1. **`ChangeDetectionStrategy.OnPush` missing on `PostCreate`** — `post-create.ts` line 13 has no `changeDetection` property in the `@Component` decorator. Conventions require `OnPush` on every component.
+1. **`PostAiGenerator` component not implemented** (`apps/web-ng-app/src/app/features/post-create/components/post-ai-generator/` — missing entirely)
+   - The spec explicitly lists AI-assisted content generation as in-scope (spec §Scope, §AI-assisted path, §Behavior). Neither the component files (`post-ai-generator.ts`, `.html`, `.css`) nor any integration with `PostCreate` or `PostCreateForm` exists. The `POST /api/ai-content/generate-content` endpoint is never called from the frontend.
 
-2. **`console.log` / `console.error` left in production code** — `post-create.ts` lines 35, 75, 83, 97 and `post-create-api.ts` line 16. Rules: "Write only clean, elegant, and idiomatic solutions. No hacks, no shortcuts." Debug logs must be removed before merge.
+2. **`PostCreateApi.generatePostContent()` method not implemented** (`apps/web-ng-app/src/app/features/post-create/services/post-create-api.ts`)
+   - Service only contains `createPost()`. The `generatePostContent()` method required by spec and plan (Step 3) is missing. Corresponding test cases for AI generation in `post-create-api.spec.ts` are also absent.
 
-3. **Route URL mismatch — `post/add` vs `posts/add`** — `app.routes.ts` line 29 registers `campaigns/:id/post/add` (singular). The spec and implementation plan both specify `campaigns/:id/posts/add` (plural). `campaign.html` line 55 also uses the singular form, so the navigation works, but the URL is wrong relative to spec and will affect deep-links and future consistency.
-
-4. **`campaignId` guard is always truthy** — `post-create.ts` line 76: `if (this.campaignId)` always evaluates to `true` because `campaignId` is the signal function reference itself (a function is always truthy). The correct guard is `if (this.campaignId())`.
-
-5. **`canDeactivate` guard applied when spec says it should NOT be** — `app.routes.ts` line 33 attaches `campaignFormCanDeactivateGuard`. The implementation plan (Step 2) explicitly states: "No guards for `canDeactivate` (intentional omission per spec review finding #4)." The component does implement `CanDeactivateComponent` and the dialog logic anyway, so this is a plan deviation that adds unspecified behaviour.
+3. **`hashtags` field uses space-splitting instead of comma-splitting** (`post-create-form.ts:97`, `post-create-form.html:99`)
+   - Spec §Edge Cases: *"represent as a comma-separated text input; parse on submit (split by comma, trim, filter empty strings)."* The template label reads "Hashtags [separated with space]" and `submitPost()` splits on `' '` (space). This directly contradicts the spec and also breaks the `patchAiContent()` flow which would join with `', '`.
 
 ### Non-Critical (should fix)
 
-6. **Template string interpolation instead of array binding** — `campaign.html` line 55 uses `` [routerLink]="[`/campaigns/${campaignId()}/post/add`]" `` (string interpolation inside array). The implementation plan specifies `[routerLink]="['/campaigns', campaignId(), 'posts', 'add']"` (pure array form). The array form is the Angular idiomatic pattern and avoids hard-coded slashes.
+4. **`campaignId` and `campaignName` are mutable public signals** (`post-create.ts:34-35`)
+   - Convention: "Private writable, public readonly. Hold mutable signals behind `#private` fields and expose `asReadonly()` projections." Both should be `#campaignId = signal('')` / `campaignId = this.#campaignId.asReadonly()`.
 
-7. **`post-create-form.css` uses class name `.campaign-form`** — CSS class (lines 1, 12) belongs to the campaign feature domain, not post-create. Should be renamed to `.post-form` or similar.
+5. **`submitted` flag is a plain boolean, not a signal** (`post-create.ts:37`)
+   - State should use `signal()` per project conventions for `OnPush` correctness.
 
-8. **`Pinteres` typo** — `post-create-form.ts` line 54: `{ label: 'Pinteres', value: 'PINTEREST' }` — label is missing the trailing `t`.
+6. **`postCreateFormComponent` viewChild reference is public** (`post-create.ts:36`)
+   - `viewChild` used only internally should be a private field (`#postCreateFormComponent`).
+
+7. **`isFormDirty` reads a non-signal property inside `computed()`** (`post-create.ts:38-40`)
+   - `postForm.dirty` is a plain boolean, not a signal. `computed()` will not re-evaluate reactively when `dirty` changes. The dirty check may return a stale value after form mutations.
+
+8. **`console.error` left in production service** (`post-create-api.ts:16`)
+   - `console.error('Service error', error)` should not ship in production code.
+
+9. **`console.error` left in `PostCreate`** (`post-create.ts:106`)
+   - Same concern.
+
+10. **Campaign name loaded from router navigation state, not API/Store** (`post-create.ts:51-53`)
+    - Spec §Behavior step 3: "a heading with the campaign name (loaded via `CampaignStore` / `CampaignApi`)." Using `router.currentNavigation()?.extras.state` is fragile — if the user navigates directly to the URL or refreshes, `campaignName()` will be `undefined`, rendering visibly broken output.
+
+11. **No error state shown when campaign not found** (`post-create.html`)
+    - Spec §Edge Cases: "If `campaignId` is not a valid UUID or the campaign is not found, show an error message and display the 'Back to campaigns list' link." The template has no `@if (error)` branch; it only shows the form unconditionally.
 
 ---
 
 ## Specification Coverage
 
 | Requirement | Status | Note |
-| --- | --- | --- |
-| New route `campaigns/:id/posts/add` | Partial | Registered as `campaigns/:id/post/add` (singular) |
-| `PostCreate` page component | Covered | Exists; missing `OnPush` |
-| "Back to campaign" link always visible | Partial | Implemented as a "Cancel" button inside the form — not a persistent link above the form as described in spec |
-| Campaign name in page heading | Missing | `post-create.html` shows a hardcoded "Create New Post" heading; no campaign name loaded |
-| Post form fields (platform, postType, content, hashtags, publishDate, scheduledAt, status) | Covered | All fields present |
-| `campaignId` derived from route param | Covered | Via `ActivatedRoute.params` subscription |
-| AI-assisted content generation section | Missing | `PostAiGenerator` component not created; no `/api/ai-content/generate-content` call |
-| `generatePostContent()` in API service | Missing | `PostCreateApi` only implements `createPost()` |
-| "Add post" button in `campaign.html` wired via `routerLink` | Covered | Button present; URL uses `post/add` (singular) |
-| Remove `addPost()` stub in `campaign.ts` | Missing | `campaign.ts` line 164 still contains `addPost()` with `// TODO` comment |
-| Success: toast + stay on page + reset form | Partial | Toast shown, but navigates away on success instead of staying and resetting |
-| Error: toast + form stays populated | Covered | Error toast shown, no navigation on error |
-| `hashtags` parsed as comma-separated | Missing | `post-create-form.ts` line 85 splits by space (`' '`); spec requires `','` |
-| `publishDate` / `scheduledAt` with time selection | Partial | `<p-datepicker>` used but `[showTime]="true"` not set |
-| `status` defaults to `DRAFT` | Covered | Default set in form group |
-| `postType` defaults to `TEXT` | Covered | Default set in form group |
-| Invalid campaignId / campaign not found error | Missing | No error state shown if campaign cannot be loaded |
-| `CreatePostRequest` added to datatypes | Covered | Added to `packages/shared/datatypes/src/lib/datatypes.ts` |
-| Unit tests for `post-create-api.ts` | Missing | Spec file is a generated skeleton — only "should be created"; no HTTP tests |
-| Unit tests for `post-create-form.ts` | Missing | Spec file is a generated skeleton — only "should create"; no form tests |
-| Form validation errors displayed | Partial | Content field shows inline errors; platform/postType/status have no validation error messages |
+|---|---|---|
+| New route `campaigns/:id/posts/add` with `authGuard` | Covered | Route correctly placed before `campaigns/:id`; also has `canDeactivate` (addition beyond spec) |
+| Post creation form: platform, postType, content, hashtags, publishDate, scheduledAt, status | Covered | All fields present and validated |
+| `campaignId` derived from route param | Covered | Done in `PostCreate` constructor |
+| `content` max 5000 chars validator | Covered | `Validators.maxLength(5000)` present |
+| `status` defaults to `DRAFT` | Covered | Default set on form init |
+| `postType` defaults to `TEXT` | Covered | |
+| `hashtags` as comma-separated string, split on submit | **Missing** | Uses space-split instead of comma-split |
+| `publishDate` / `scheduledAt` as PrimeNG DatePicker with `[showTime]="true"` | Covered | `[showTime]="true"` is set on both pickers |
+| Success: toast + stay on page + reset form | Covered | `postForm.reset()` called; `submitted = true`; page stays |
+| Error: toast + form stays populated | Covered | |
+| "Back to campaign" button visible | Covered | Via `goBack` output on form, handled by page |
+| Campaign name in page heading | Partial | Loaded from nav state only; breaks on direct URL navigation |
+| AI-assisted content generation (`PostAiGenerator` component) | **Missing** | Component entirely absent |
+| `generatePostContent()` in `PostCreateApi` | **Missing** | Method not implemented |
+| Auto-fill `content` and `hashtags` from AI result | **Missing** | No `patchAiContent()` method on form |
+| Set `platform` on form from AI result | **Missing** | |
+| Unhide "Add post" button in `campaign.html` | Covered | Button present with `routerLink` and `[state]` |
+| `[state]={campaignName}` passed to nav | Covered | |
+| Remove `addPost()` stub from `campaign.ts` | Covered | `addPost()` is absent; `editPost()` / `schedulePost()` stubs remain (correct per plan) |
+| `CreatePostRequest` type added to datatypes | Covered | Added to `datatypes.ts` |
+| Unit tests for `PostCreateApi` | Partial | `createPost` fully tested; `generatePostContent` untested (not implemented) |
+| Unit tests for `PostCreateForm` | Covered | Comprehensive coverage of validation, submission, getters |
+| Invalid `campaignId` / campaign not found error state | **Missing** | No error branch in `post-create.html`; no CampaignApi/Store integrated |
 
 ---
 
 ## Plan Deviations
 
-1. **AI generator component not created** — Plan Steps 5 and 6 describe `PostAiGenerator` and its integration. Not implemented.
-
-2. **Folder structure differs** — Plan specifies `components/post-create-form/post-create-form.ts` (subfolder per component). Implemented as `components/post-create-form.ts` (flat). Minor but deviates from plan.
-
-3. **`PostCreate` does not use `CampaignStore` / `CampaignApi`** — Plan Step 8 calls for injecting these to load the campaign name for the heading. Neither is injected; the heading is hardcoded.
-
-4. **On success: navigate away instead of reset and stay** — Plan Step 8 and spec behaviour: "show a success toast and stay on the form page (form resets to empty)". Implementation navigates to `campaigns/:id` on success (`post-create.ts` line 90).
-
-5. **`canDeactivate` guard added** — Plan explicitly omits this; implementation adds it.
-
-6. **`formSubmit` emits `Omit<CreatePostRequest, 'campaignId'>` not `CreatePostRequest`** — Plan Step 6 says `formSubmit` emits `CreatePostRequest`. Implementation emits without `campaignId` and merges in the page. Pragmatic but a deviation from the plan.
+1. **Step 5 (PostAiGenerator component) entirely skipped** — No files created, no integration.
+2. **Step 3 (generatePostContent in PostCreateApi) skipped** — Second method not added to service.
+3. **Step 6: `campaignId` as `input.required<string>()` on PostCreateForm** — Not implemented. `PostCreateForm` emits `Omit<CreatePostRequest, 'campaignId'>` and the page merges the ID. Functional workaround but a plan deviation.
+4. **Step 8: campaign details via `CampaignStore`/`CampaignApi`** — Not done; name comes from router navigation state only.
+5. **Step 8: error state in `post-create.html`** — The `@if (campaignDetails.error())` block from the plan's template is absent.
+6. **`canDeactivate` guard added** — Plan Step 2 explicitly omits this. Implementation adds it with a full confirm-dialog flow. Not a harmful deviation, but it is a deviation.
+7. **`post-create.spec.ts` added** — Not in plan's file list but provides useful page-level coverage. Welcome addition.
 
 ---
 
 ## Null Safety Issues
 
-1. **`post-create.ts` line 76** — `if (this.campaignId)` is always truthy (signal reference). Should be `if (this.campaignId())`.
-
-2. **`post-create.ts` line 79** — `this.campaignId() as string` casts away `undefined`. If the route param were absent, `undefined` would be sent as `campaignId`. Fix the guard first (see above) to make the cast safe.
-
-3. **`post-create-form.ts` line 85** — `formValue.hashtags?.split(' ')` — `nonNullable.group` guarantees `hashtags` is a `string`, so the optional chain `?.` is misleading noise. Also the delimiter is wrong (space instead of comma).
+1. **`router.currentNavigation()?.extras.state?.['campaignName']`** (`post-create.ts:51-53`) — Returns `undefined` on direct navigation or page refresh. `campaignName` signal is typed as `string` but holds `undefined` silently.
+2. **`formValue.hashtags?.split(' ')`** (`post-create-form.ts:97`) — `nonNullable.group` guarantees `hashtags` is a `string`; the optional chain `?.` is misleading. Also the delimiter is wrong (space instead of comma).
 
 ---
 
 ## Code Smells
 
-1. **`submitted` flag is a plain boolean** — `post-create.ts` line 28: `private submitted = false`. State should use `signal()` per conventions.
-
-2. **`CreatePostFormComponent` naming** — `post-create.ts` line 27: public `viewChild` field starts with uppercase (`CreatePostFormComponent`). Should be `postCreateFormRef` or similar camelCase name.
-
-3. **`isFormDirty` computed reads a non-signal** — `post-create.ts` line 29: `computed(() => this.CreatePostFormComponent().postForm.dirty)` — `postForm.dirty` is a plain boolean property, not a signal. `computed()` will not re-evaluate reactively when `dirty` changes.
-
-4. **Unrelated file changed** — The diff includes `apps/web-ng-app/src/app/features/ai-generator/components/step3/step3.html`. This file is outside task-04 scope. The change should be reviewed separately or reverted if accidental.
+1. **Unnecessary type casts in `submitPost()`** (`post-create-form.ts:99-100`) — `as PlatformType`, `as PostTypeValue`, `as string` are redundant when using `nonNullable.group`; TypeScript infers these correctly.
+2. **Magic color values in CSS** (`post-create-form.css:1,6,8`) — Raw hex values (`#fff`, `#e2e8f0`, `#94a3b8`, `rgba(...)`) mix paradigms with Tailwind utility classes used in templates. Should use Tailwind tokens or CSS variables.
 
 ---
 
@@ -101,15 +108,9 @@
 
 **Fix critical issues before merge.**
 
-Priority fixes:
-- Add `ChangeDetectionStrategy.OnPush` to `PostCreate`
-- Remove all `console.log` / `console.error` calls
-- Fix `if (this.campaignId)` → `if (this.campaignId())`
-- Fix hashtag split delimiter: `' '` → `','`
-- Add `[showTime]="true"` to both `<p-datepicker>` instances
-- Fix success path: stay on page + reset form (remove `router.navigate` on success)
-- Rename route `post/add` → `posts/add` and update `campaign.html` accordingly
-- Remove the `addPost()` stub from `campaign.ts`
-- Expand unit tests to cover the cases specified in the plan
+The three blocking gaps are:
+1. `PostAiGenerator` component and its integration are entirely missing — this is an explicit in-scope spec requirement.
+2. `PostCreateApi.generatePostContent()` method is absent.
+3. `hashtags` parsing uses space-split instead of the spec-required comma-split.
 
-The AI-assisted generation feature is entirely missing and is in spec scope. It should either be implemented or the task explicitly split, with the current PR scoped to manual post creation only.
+All three must be resolved before this branch can be considered complete.
