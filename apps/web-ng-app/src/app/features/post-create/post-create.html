@@ -1,0 +1,8 @@
+<div class="container">
+  <h1 class="text-2xl font-semibold text-center mb-10">Create New Post</h1>
+  <app-post-create-form
+    (cancelPostCreation)="cancel()"
+    (formSubmit)="saveNewPost($event)"
+  ></app-post-create-form>
+</div>
+<p-confirm-dialog />

@@ -1,0 +1,112 @@
+<div class="campaign-form">
+  <form [formGroup]="postForm" (ngSubmit)="submitPost()">
+    <div class="mb-3">
+      <label for="platform" class="campaign-form__label">Platform Type:</label>
+      <p-select
+        [options]="platformTypeSelectOptions"
+        formControlName="platform"
+        name="platform"
+        id="platform"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select platform type"
+        class="w-full"
+      />
+    </div>
+    <div class="mb-3">
+      <label for="postType" class="campaign-form__label">Post Type:</label>
+      <p-select
+        [options]="postTypeSelectOptions"
+        formControlName="postType"
+        name="postType"
+        id="postType"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select post type"
+        class="w-full"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="status" class="campaign-form__label">Status:</label>
+      <p-select
+        [options]="postStatusSelectOptions"
+        formControlName="status"
+        name="status"
+        id="status"
+        optionLabel="label"
+        optionValue="value"
+        placeholder="Select status"
+        class="w-full"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="publishDate" class="campaign-form__label">Publish date</label>
+      <p-datepicker
+        formControlName="publishDate"
+        name="publishDate"
+        id="publishDate"
+        [showIcon]="true"
+        class="w-full"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="scheduledAt" class="campaign-form__label">Scheduled at</label>
+      <p-datepicker
+        formControlName="scheduledAt"
+        name="scheduledAt"
+        id="scheduledAt"
+        [showIcon]="true"
+        class="w-full"
+      />
+    </div>
+
+    <div class="mb-3">
+      <label for="content" class="campaign-form__label">Content:</label>
+      <textarea
+        pTextarea
+        id="content"
+        rows="5"
+        formControlName="content"
+        class="w-full"
+      ></textarea>
+      @if(content?.invalid && (content?.touched || content?.dirty)) { @if
+      (content?.hasError('required')) {
+      <p class="form-error">Content is required</p>
+      } @if(content?.hasError('maxLength')) {
+      <p class="form-error">Content can't be longer than 5000 characters</p>
+      } }
+    </div>
+
+    <div class="mb-3">
+      <label for="hashtags" class="campaign-form__label">Hashtags:</label>
+      <input
+        type="text"
+        id="hashtags"
+        pInputText
+        formControlName="hashtags"
+        class="w-full"
+      />
+    </div>
+
+    <div class="text-right mt-4">
+      <p-button
+        label="Cancel"
+        type="button"
+        (onClick)="cancel()"
+        class="mr-4"
+        variant="outlined"
+        size="small"
+        severity="secondary"
+      />
+      <p-button
+        label="Save"
+        type="submit"
+        size="small"
+        [disabled]="postForm.invalid || postForm.pristine"
+      />
+    </div>
+  </form>
+</div>
