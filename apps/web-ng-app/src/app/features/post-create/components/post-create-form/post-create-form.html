@@ -1,7 +1,7 @@
-<div class="campaign-form">
+<div class="post-form">
   <form [formGroup]="postForm" (ngSubmit)="submitPost()">
     <div class="mb-3">
-      <label for="platform" class="campaign-form__label">Platform Type:</label>
+      <label for="platform" class="post-form__label">Platform Type:</label>
       <p-select
         [options]="platformTypeSelectOptions"
         formControlName="platform"
@@ -12,9 +12,13 @@
         placeholder="Select platform type"
         class="w-full"
       />
+      @if(platform?.invalid && (platform?.touched || platform?.dirty)) { @if
+      (platform?.hasError('required')) {
+      <p class="form-error">Platform is required</p>
+      }}
     </div>
     <div class="mb-3">
-      <label for="postType" class="campaign-form__label">Post Type:</label>
+      <label for="postType" class="post-form__label">Post Type:</label>
       <p-select
         [options]="postTypeSelectOptions"
         formControlName="postType"
@@ -25,10 +29,14 @@
         placeholder="Select post type"
         class="w-full"
       />
+      @if(postType?.invalid && (postType?.touched || postType?.dirty)) { @if
+      (postType?.hasError('required')) {
+      <p class="form-error">Post type is required</p>
+      }}
     </div>
 
     <div class="mb-3">
-      <label for="status" class="campaign-form__label">Status:</label>
+      <label for="status" class="post-form__label">Status:</label>
       <p-select
         [options]="postStatusSelectOptions"
         formControlName="status"
@@ -39,32 +47,38 @@
         placeholder="Select status"
         class="w-full"
       />
+      @if(status?.invalid && (status?.touched || status?.dirty)) { @if
+      (status?.hasError('required')) {
+      <p class="form-error">Status is required</p>
+      }}
     </div>
 
     <div class="mb-3">
-      <label for="publishDate" class="campaign-form__label">Publish date</label>
+      <label for="publishDate" class="post-form__label">Publish date</label>
       <p-datepicker
         formControlName="publishDate"
         name="publishDate"
         id="publishDate"
         [showIcon]="true"
+        [showTime]="true"
         class="w-full"
       />
     </div>
 
     <div class="mb-3">
-      <label for="scheduledAt" class="campaign-form__label">Scheduled at</label>
+      <label for="scheduledAt" class="post-form__label">Scheduled at</label>
       <p-datepicker
         formControlName="scheduledAt"
         name="scheduledAt"
         id="scheduledAt"
         [showIcon]="true"
+        [showTime]="true"
         class="w-full"
       />
     </div>
 
     <div class="mb-3">
-      <label for="content" class="campaign-form__label">Content:</label>
+      <label for="content" class="post-form__label">Content:</label>
       <textarea
         pTextarea
         id="content"
@@ -81,7 +95,9 @@
     </div>
 
     <div class="mb-3">
-      <label for="hashtags" class="campaign-form__label">Hashtags:</label>
+      <label for="hashtags" class="post-form__label"
+        >Hashtags [separated with space]:</label
+      >
       <input
         type="text"
         id="hashtags"
@@ -91,11 +107,11 @@
       />
     </div>
 
-    <div class="text-right mt-4">
+    <div class="flex justify-between mt-4">
       <p-button
-        label="Cancel"
+        label="Back to campaign"
         type="button"
-        (onClick)="cancel()"
+        (onClick)="goToCampaign()"
         class="mr-4"
         variant="outlined"
         size="small"

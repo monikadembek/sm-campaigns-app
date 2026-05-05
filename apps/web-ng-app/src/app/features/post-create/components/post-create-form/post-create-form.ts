@@ -35,7 +35,7 @@ export class PostCreateForm {
   readonly #fb = inject(FormBuilder);
 
   formSubmit = output<Omit<CreatePostRequest, 'campaignId'>>();
-  cancelPostCreation = output<void>();
+  goBack = output<void>();
 
   postStatusSelectOptions: { label: string; value: PostStatus }[] = [
     { label: 'Draft', value: 'DRAFT' },
@@ -51,7 +51,7 @@ export class PostCreateForm {
     { label: 'LinkedIn', value: 'LINKEDIN' },
     { label: 'TikTok', value: 'TIKTOK' },
     { label: 'YouTube', value: 'YOUTUBE' },
-    { label: 'Pinteres', value: 'PINTEREST' },
+    { label: 'Pinterest', value: 'PINTEREST' },
   ];
 
   postTypeSelectOptions: { label: string; value: PostTypeValue }[] = [
@@ -79,10 +79,22 @@ export class PostCreateForm {
     return this.postForm.get('content');
   }
 
+  get platform() {
+    return this.postForm.get('platform');
+  }
+
+  get postType() {
+    return this.postForm.get('postType');
+  }
+
+  get status() {
+    return this.postForm.get('status');
+  }
+
   submitPost() {
     if (this.postForm.valid) {
       const formValue = this.postForm.value;
-      const hashtags = formValue.hashtags?.split(' ') || [];
+      const hashtags = formValue.hashtags?.split(' ').filter(Boolean) || [];
       const formData: Omit<CreatePostRequest, 'campaignId'> = {
         platform: formValue.platform as PlatformType,
         postType: formValue.postType as PostTypeValue,
@@ -96,7 +108,7 @@ export class PostCreateForm {
     }
   }
 
-  cancel() {
-    this.cancelPostCreation.emit();
+  goToCampaign() {
+    this.goBack.emit();
   }
 }

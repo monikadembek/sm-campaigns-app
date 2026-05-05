@@ -52,7 +52,8 @@
         size="small"
         variant="outlined"
         severity="success"
-        [routerLink]="[`/campaigns/${campaignId()}/post/add`]"
+        [routerLink]="['/campaigns', campaignId(), 'posts', 'add']"
+        [state]="{campaignName: campaignDetails.value().name}"
       ></p-button>
     </div>
 

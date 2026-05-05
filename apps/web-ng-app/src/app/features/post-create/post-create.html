@@ -1,7 +1,12 @@
 <div class="container">
-  <h1 class="text-2xl font-semibold text-center mb-10">Create New Post</h1>
+  <h1 class="text-2xl font-semibold text-center mb-2">Create New Post</h1>
+  @if(campaignName()) {
+  <h2 class="font-medium text-center mb-10">
+    Inside campaign: {{campaignName()}}
+  </h2>
+  }
   <app-post-create-form
-    (cancelPostCreation)="cancel()"
+    (goBack)="goToCampaign()"
     (formSubmit)="saveNewPost($event)"
   ></app-post-create-form>
 </div>

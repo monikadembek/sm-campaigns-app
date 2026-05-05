@@ -1,5 +1,12 @@
-import { Component, computed, inject, signal, viewChild } from '@angular/core';
-import { PostCreateForm } from './components/post-create-form';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { PostCreateForm } from './components/post-create-form/post-create-form';
 import { CreatePostRequest } from '@sm-campaigns-app/datatypes';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -15,6 +22,7 @@ import { CanDeactivateComponent } from '../../shared/guards/campaign-form-can-de
   imports: [PostCreateForm, ConfirmDialogModule],
   templateUrl: './post-create.html',
   styleUrl: './post-create.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PostCreate implements CanDeactivateComponent {
   private readonly router = inject(Router);
@@ -23,18 +31,26 @@ export class PostCreate implements CanDeactivateComponent {
   private readonly messageService = inject(MessageService);
   private readonly confirmationService = inject(ConfirmationService);
 
-  campaignId = signal<string | undefined>(undefined);
-  CreatePostFormComponent = viewChild.required(PostCreateForm);
+  campaignId = signal<string>('');
+  campaignName = signal('');
+  postCreateFormComponent = viewChild.required(PostCreateForm);
   private submitted = false;
   isFormDirty = computed(() => {
-    return this.CreatePostFormComponent().postForm.dirty;
+    return this.postCreateFormComponent().postForm.dirty;
   });
 
   constructor() {
     this.route.params.pipe(takeUntilDestroyed()).subscribe((params) => {
-      console.log('params', params);
-      this.campaignId.set(params['id']);
+      if (!params['id']) {
+        this.router.navigate(['/campaigns']);
+      } else {
+        this.campaignId.set(params['id']);
+      }
     });
+
+    this.campaignName.set(
+      this.router.currentNavigation()?.extras.state?.['campaignName'],
+    );
   }
 
   canDeactivate(): boolean | Observable<boolean> {
@@ -67,38 +83,34 @@ export class PostCreate implements CanDeactivateComponent {
     return shouldClose$.asObservable();
   }
 
-  cancel() {
+  goToCampaign() {
     this.router.navigate(['campaigns', this.campaignId()]);
   }
 
   saveNewPost(form: Omit<CreatePostRequest, 'campaignId'>) {
-    console.log('post form', form);
-    if (this.campaignId) {
-      const postData: CreatePostRequest = {
-        campaignId: this.campaignId() as string,
-        ...form,
-      };
-      this.postCreateApiService.createPost(postData).subscribe({
-        next: (post) => {
-          console.log('created new post', post);
-          this.submitted = true;
-          this.messageService.add({
-            severity: 'success',
-            summary: 'Confirmed',
-            detail: `New post was created`,
-          });
-          this.router.navigate(['campaigns', this.campaignId()]);
-        },
-        error: (err) => {
-          console.error('Error when creating new post ', err);
-          const errorText = handleHttpErrorResponseMessage(err);
-          this.messageService.add({
-            severity: 'error',
-            summary: 'Error',
-            detail: `Creating new post failed. ${errorText}`,
-          });
-        },
-      });
-    }
+    const postData: CreatePostRequest = {
+      campaignId: this.campaignId() as string,
+      ...form,
+    };
+    this.postCreateApiService.createPost(postData).subscribe({
+      next: () => {
+        this.submitted = true;
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Confirmed',
+          detail: `New post was created`,
+        });
+        this.postCreateFormComponent().postForm.reset();
+      },
+      error: (err) => {
+        console.error('Error when creating new post ', err);
+        const errorText = handleHttpErrorResponseMessage(err);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: `Creating new post failed. ${errorText}`,
+        });
+      },
+    });
   }
 }

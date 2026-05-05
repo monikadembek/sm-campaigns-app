@@ -1,4 +1,4 @@
-.campaign-form {
+.post-form {
   background: #fff;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
@@ -9,7 +9,7 @@
   margin: 0 auto;
 }
 
-.campaign-form__label {
+.post-form__label {
   display: block;
   font-size: 12px;
   font-weight: 600;

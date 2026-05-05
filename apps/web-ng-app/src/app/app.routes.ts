@@ -26,7 +26,7 @@ export const appRoutes: Route[] = [
     canDeactivate: [campaignFormCanDeactivateGuard],
   },
   {
-    path: 'campaigns/:id/post/add',
+    path: 'campaigns/:id/posts/add',
     loadComponent: () =>
       import('./features/post-create/post-create').then((c) => c.PostCreate),
     canActivate: [authGuard],
